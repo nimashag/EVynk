@@ -1,0 +1,60 @@
+# ==============================================
+# Git ignore for .NET / C# Web API (EVynk Booking)
+# ==============================================
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+publish/
+artifacts/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.iml
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+
+# Logs
+*.log
+logs/
+
+# Test results / Coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+.coverage
+coverage*.json
+lcov.info
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# ASP.NET local settings
+Properties/launchSettings.json
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+
+# Tooling
+tools/
+.tools/
+
+
