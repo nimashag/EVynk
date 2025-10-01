@@ -54,6 +54,10 @@ appsettings.Local.json
 appsettings.*.local.json
 appsettings.json
 
+# Local MSBuild props/targets (keep UserSecretsId out of git)
+Directory.Build.props
+Directory.Build.targets
+
 # Tooling
 tools/
 .tools/
