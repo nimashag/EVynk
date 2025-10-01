@@ -1,6 +1,11 @@
 using EVynk.Booking.Api.Config;
 using EVynk.Booking.Api.Persistence;
+using EVynk.Booking.Api.Repositories;
+using EVynk.Booking.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 // ==============================================
 //  Project: EVynk Booking Backend (API)
@@ -19,6 +24,32 @@ builder.Services.AddControllers();
 // Bind MongoDB settings and register context
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(MongoDbSettings.SectionName));
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
+builder.Services.AddScoped<AuthService>();
+
+// JWT Authentication
+var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret ?? "development-secret-change-me"));
+builder.Services.AddAuthentication(options =>
+{
+    // Inline comment at the beginning of method: configure JWT bearer defaults
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    // Inline comment at the beginning of method: configure token validation parameters
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration[$"{JwtSettings.SectionName}:Issuer"],
+        ValidAudience = builder.Configuration[$"{JwtSettings.SectionName}:Audience"],
+        IssuerSigningKey = key
+    };
+});
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -43,6 +74,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
