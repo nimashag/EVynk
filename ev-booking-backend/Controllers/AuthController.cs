@@ -29,7 +29,7 @@ namespace EVynk.Booking.Api.Controllers
         public record LoginRequest(string Email, string Password);
 
         [HttpPost("register")]
-        [AllowAnonymous] // TEMPORARY: open registration to allow first Backoffice user creation
+        [Authorize(Roles = nameof(UserRole.Backoffice))]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             // Inline comment at the beginning of method: delegate to service and return created user
