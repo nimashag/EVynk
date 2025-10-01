@@ -52,6 +52,7 @@ Properties/launchSettings.json
 appsettings.Development.json
 appsettings.Local.json
 appsettings.*.local.json
+appsettings.json
 
 # Tooling
 tools/
