@@ -29,6 +29,8 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSett
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
 builder.Services.AddScoped<OwnerService>();
+builder.Services.AddScoped<IChargingStationRepository, ChargingStationRepository>();
+builder.Services.AddScoped<ChargingStationService>();
 
 // JWT Authentication
 var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];
