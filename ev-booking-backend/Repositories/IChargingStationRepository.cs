@@ -17,6 +17,12 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: list all stations
         Task<List<ChargingStation>> ListAsync();
+
+        // Inline comment at the beginning of method: update station details
+        Task<bool> UpdateAsync(string id, ChargingStation station);
+
+        // Inline comment at the beginning of method: set available slots
+        Task<bool> SetAvailableSlotsAsync(string id, int availableSlots);
     }
 }
 

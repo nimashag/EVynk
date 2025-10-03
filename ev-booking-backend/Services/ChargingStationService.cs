@@ -34,6 +34,23 @@ namespace EVynk.Booking.Api.Services
             // Inline comment at the beginning of method: return all stations
             return await _repository.ListAsync();
         }
+
+        public async Task<bool> UpdateAsync(string id, ChargingStation station)
+        {
+            // Inline comment at the beginning of method: validate and update station
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id is required");
+            if (string.IsNullOrWhiteSpace(station.Location)) throw new ArgumentException("Location is required");
+            if (station.AvailableSlots < 0) throw new ArgumentException("AvailableSlots cannot be negative");
+            return await _repository.UpdateAsync(id, station);
+        }
+
+        public async Task<bool> SetAvailableSlotsAsync(string id, int availableSlots)
+        {
+            // Inline comment at the beginning of method: validate and set slots
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id is required");
+            if (availableSlots < 0) throw new ArgumentException("AvailableSlots cannot be negative");
+            return await _repository.SetAvailableSlotsAsync(id, availableSlots);
+        }
     }
 }
 

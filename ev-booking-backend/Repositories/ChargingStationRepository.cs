@@ -34,6 +34,22 @@ namespace EVynk.Booking.Api.Repositories
             // Inline comment at the beginning of method: list all stations
             return await _stations.Find(Builders<ChargingStation>.Filter.Empty).ToListAsync();
         }
+
+        public async Task<bool> UpdateAsync(string id, ChargingStation station)
+        {
+            // Inline comment at the beginning of method: replace station document by id
+            station.Id = id;
+            var result = await _stations.ReplaceOneAsync(s => s.Id == id, station, new ReplaceOptions { IsUpsert = false });
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> SetAvailableSlotsAsync(string id, int availableSlots)
+        {
+            // Inline comment at the beginning of method: update only availableSlots
+            var update = Builders<ChargingStation>.Update.Set(s => s.AvailableSlots, availableSlots);
+            var result = await _stations.UpdateOneAsync(s => s.Id == id, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
 
