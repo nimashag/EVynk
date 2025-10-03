@@ -27,6 +27,8 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
+builder.Services.AddScoped<OwnerService>();
 
 // JWT Authentication
 var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];
