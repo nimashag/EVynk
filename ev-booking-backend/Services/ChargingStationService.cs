@@ -14,11 +14,13 @@ namespace EVynk.Booking.Api.Services
     public class ChargingStationService
     {
         private readonly IChargingStationRepository _repository;
+        private readonly IBookingRepository _bookingRepository;
 
-        public ChargingStationService(IChargingStationRepository repository)
+        public ChargingStationService(IChargingStationRepository repository, IBookingRepository bookingRepository)
         {
-            // Inline comment at the beginning of method: capture repository dependency
+            // Inline comment at the beginning of method: capture repository dependencies
             _repository = repository;
+            _bookingRepository = bookingRepository;
         }
 
         public async Task<ChargingStation> CreateAsync(ChargingStation station)
@@ -50,6 +52,20 @@ namespace EVynk.Booking.Api.Services
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id is required");
             if (availableSlots < 0) throw new ArgumentException("AvailableSlots cannot be negative");
             return await _repository.SetAvailableSlotsAsync(id, availableSlots);
+        }
+
+        public async Task<bool> SetActiveAsync(string id, bool isActive)
+        {
+            // Inline comment at the beginning of method: prevent deactivation when active bookings exist
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id is required");
+            
+            if (!isActive)
+            {
+                var hasActive = await _bookingRepository.AnyActiveForStationAsync(id);
+                if (hasActive) throw new InvalidOperationException("Cannot deactivate station with active bookings");
+            }
+            
+            return await _repository.SetActiveAsync(id, isActive);
         }
     }
 }

@@ -31,6 +31,9 @@ namespace EVynk.Booking.Api.Models
 
         [BsonElement("availableSlots")]
         public int AvailableSlots { get; set; }
+
+        [BsonElement("isActive")]
+        public bool IsActive { get; set; } = true;
     }
 }
 

@@ -50,6 +50,14 @@ namespace EVynk.Booking.Api.Repositories
             var result = await _stations.UpdateOneAsync(s => s.Id == id, update);
             return result.ModifiedCount > 0;
         }
+
+        public async Task<bool> SetActiveAsync(string id, bool isActive)
+        {
+            // Inline comment at the beginning of method: set station active flag
+            var update = Builders<ChargingStation>.Update.Set(s => s.IsActive, isActive);
+            var result = await _stations.UpdateOneAsync(s => s.Id == id, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
 

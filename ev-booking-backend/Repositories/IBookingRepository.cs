@@ -27,6 +27,9 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: update booking status
         Task<bool> UpdateStatusAsync(string id, BookingStatus status);
+
+        // Inline comment at the beginning of method: check if station has active bookings
+        Task<bool> AnyActiveForStationAsync(string stationId);
     }
 }
 

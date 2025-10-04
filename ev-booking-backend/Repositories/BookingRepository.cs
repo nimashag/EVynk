@@ -59,6 +59,17 @@ namespace EVynk.Booking.Api.Repositories
             var result = await _bookings.UpdateOneAsync(b => b.Id == id, update);
             return result.ModifiedCount > 0;
         }
+
+        public async Task<bool> AnyActiveForStationAsync(string stationId)
+        {
+            // Inline comment at the beginning of method: check for active bookings for station
+            var filter = Builders<BookingModel>.Filter.And(
+                Builders<BookingModel>.Filter.Eq(b => b.StationId, stationId),
+                Builders<BookingModel>.Filter.In(b => b.Status, new[] { BookingStatus.Pending, BookingStatus.Active })
+            );
+            var count = await _bookings.CountDocumentsAsync(filter);
+            return count > 0;
+        }
     }
 }
 

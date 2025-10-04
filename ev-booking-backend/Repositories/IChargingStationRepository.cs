@@ -23,6 +23,9 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: set available slots
         Task<bool> SetAvailableSlotsAsync(string id, int availableSlots);
+
+        // Inline comment at the beginning of method: set station active status
+        Task<bool> SetActiveAsync(string id, bool isActive);
     }
 }
 

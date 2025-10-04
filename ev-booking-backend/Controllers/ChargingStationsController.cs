@@ -75,6 +75,28 @@ namespace EVynk.Booking.Api.Controllers
             if (!ok) return NotFound();
             return Ok(new { message = "Charging station slots updated successfully", id = id, availableSlots = body.AvailableSlots });
         }
+
+        public record SetActiveRequest(bool IsActive);
+
+        [HttpPatch("{id}/active")]
+        public async Task<IActionResult> SetActive([FromRoute] string id, [FromBody] SetActiveRequest body)
+        {
+            // Inline comment at the beginning of method: set active flag with guard against active bookings
+            try
+            {
+                var ok = await _service.SetActiveAsync(id, body.IsActive);
+                if (!ok) return NotFound();
+                return Ok(new { 
+                    message = body.IsActive ? "Charging station activated successfully" : "Charging station deactivated successfully", 
+                    id = id, 
+                    isActive = body.IsActive 
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 }
 
