@@ -24,6 +24,9 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: get booking by id
         Task<BookingModel?> GetByIdAsync(string id);
+
+        // Inline comment at the beginning of method: update booking status
+        Task<bool> UpdateStatusAsync(string id, BookingStatus status);
     }
 }
 

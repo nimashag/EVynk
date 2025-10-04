@@ -93,7 +93,38 @@ namespace EVynk.Booking.Api.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
+
+        [HttpPatch("{id}/activate")]
+        public async Task<IActionResult> Activate([FromRoute] string id)
+        {
+            // Inline comment at the beginning of method: activate booking (Pending -> Active)
+            try
+            {
+                var activated = await _service.ActivateAsync(id);
+                if (!activated) return NotFound();
+                return Ok(new { message = "Booking activated successfully", id = id, status = "Active" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("{id}/complete")]
+        public async Task<IActionResult> Complete([FromRoute] string id)
+        {
+            // Inline comment at the beginning of method: complete booking (Active -> Completed)
+            try
+            {
+                var completed = await _service.CompleteAsync(id);
+                if (!completed) return NotFound();
+                return Ok(new { message = "Booking completed successfully", id = id, status = "Completed" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 }
-
 

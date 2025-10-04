@@ -86,6 +86,30 @@ namespace EVynk.Booking.Api.Services
 
             return await _repository.CancelAsync(id);
         }
+
+        public async Task<bool> ActivateAsync(string id)
+        {
+            // Inline comment at the beginning of method: change status from Pending to Active
+            var booking = await _repository.GetByIdAsync(id);
+            if (booking == null) return false;
+
+            if (booking.Status != BookingStatus.Pending)
+                throw new InvalidOperationException($"Cannot activate booking with status: {booking.Status}");
+
+            return await _repository.UpdateStatusAsync(id, BookingStatus.Active);
+        }
+
+        public async Task<bool> CompleteAsync(string id)
+        {
+            // Inline comment at the beginning of method: change status from Active to Completed
+            var booking = await _repository.GetByIdAsync(id);
+            if (booking == null) return false;
+
+            if (booking.Status != BookingStatus.Active)
+                throw new InvalidOperationException($"Cannot complete booking with status: {booking.Status}");
+
+            return await _repository.UpdateStatusAsync(id, BookingStatus.Completed);
+        }
     }
 }
 

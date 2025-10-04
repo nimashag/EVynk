@@ -51,6 +51,14 @@ namespace EVynk.Booking.Api.Repositories
             // Inline comment at the beginning of method: find booking by id
             return await _bookings.Find(b => b.Id == id).FirstOrDefaultAsync();
         }
+
+        public async Task<bool> UpdateStatusAsync(string id, BookingStatus status)
+        {
+            // Inline comment at the beginning of method: update booking status
+            var update = Builders<BookingModel>.Update.Set(b => b.Status, status);
+            var result = await _bookings.UpdateOneAsync(b => b.Id == id, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
 
