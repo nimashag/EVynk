@@ -30,6 +30,7 @@ namespace EVynk.Booking.Api.Models
         public string PasswordHash { get; set; } = string.Empty;
 
         [BsonElement("role")]
+        [BsonRepresentation(BsonType.String)]
         public UserRole Role { get; set; }
     }
 }
