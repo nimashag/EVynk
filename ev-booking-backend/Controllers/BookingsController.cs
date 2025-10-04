@@ -49,6 +49,50 @@ namespace EVynk.Booking.Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreateBookingRequest request)
+        {
+            // Inline comment at the beginning of method: update booking with 12-hour validation
+            try
+            {
+                var updated = await _service.UpdateAsync(id, request.StationId, request.OwnerNic, request.ReservationAt);
+                if (!updated) return NotFound();
+                return Ok(new
+                {
+                    message = "Booking updated successfully",
+                    id = id,
+                    stationId = request.StationId,
+                    ownerNic = request.OwnerNic,
+                    reservationAtUtc = request.ReservationAt.ToUniversalTime(),
+                    status = "Pending"
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Cancel([FromRoute] string id)
+        {
+            // Inline comment at the beginning of method: cancel booking with 12-hour validation
+            try
+            {
+                var cancelled = await _service.CancelAsync(id);
+                if (!cancelled) return NotFound();
+                return Ok(new { message = "Booking cancelled successfully", id = id, status = "Cancelled" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 }
 

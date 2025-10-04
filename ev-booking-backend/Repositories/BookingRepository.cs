@@ -29,6 +29,28 @@ namespace EVynk.Booking.Api.Repositories
             await _bookings.InsertOneAsync(booking);
             return booking;
         }
+
+        public async Task<bool> UpdateAsync(string id, BookingModel booking)
+        {
+            // Inline comment at the beginning of method: replace booking document by id
+            booking.Id = id;
+            var result = await _bookings.ReplaceOneAsync(b => b.Id == id, booking, new ReplaceOptions { IsUpsert = false });
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> CancelAsync(string id)
+        {
+            // Inline comment at the beginning of method: set status to cancelled
+            var update = Builders<BookingModel>.Update.Set(b => b.Status, BookingStatus.Cancelled);
+            var result = await _bookings.UpdateOneAsync(b => b.Id == id, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<BookingModel?> GetByIdAsync(string id)
+        {
+            // Inline comment at the beginning of method: find booking by id
+            return await _bookings.Find(b => b.Id == id).FirstOrDefaultAsync();
+        }
     }
 }
 

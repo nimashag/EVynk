@@ -15,6 +15,15 @@ namespace EVynk.Booking.Api.Repositories
     {
         // Inline comment at the beginning of method: create a new booking
         Task<BookingModel> CreateAsync(BookingModel booking);
+
+        // Inline comment at the beginning of method: update booking details
+        Task<bool> UpdateAsync(string id, BookingModel booking);
+
+        // Inline comment at the beginning of method: cancel booking by id
+        Task<bool> CancelAsync(string id);
+
+        // Inline comment at the beginning of method: get booking by id
+        Task<BookingModel?> GetByIdAsync(string id);
     }
 }
 
