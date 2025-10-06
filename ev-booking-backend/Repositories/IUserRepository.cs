@@ -17,6 +17,10 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: find a user by email
         Task<User?> FindByEmailAsync(string email);
+
+        Task<List<User>> GetByRoleAsync(UserRole role);
+        Task<User?> GetByEmailAsync(string email);
+
     }
 }
 

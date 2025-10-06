@@ -45,6 +45,7 @@ builder.Services.AddScoped<IChargingStationRepository, ChargingStationRepository
 builder.Services.AddScoped<ChargingStationService>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<BookingService>();
+builder.Services.AddHttpContextAccessor();
 
 // JWT Authentication
 var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];

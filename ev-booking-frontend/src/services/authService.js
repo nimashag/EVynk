@@ -173,7 +173,8 @@ export const authService = {
         // Backend enum expects numeric (AC=1, DC=2)
         type: stationData.type === 'DC' || stationData.type === 2 ? 2 : 1,
         availableSlots: Number(stationData.availableSlots) || 0,
-        isActive: Boolean(stationData.isActive)
+        isActive: Boolean(stationData.isActive),
+        operatorIds: stationData.operatorIds || []
       };
       const response = await api.post('/chargingstations', payload);
       return { success: true, data: response.data };
@@ -194,7 +195,8 @@ export const authService = {
         lng: stationData.lng ?? null,
         type: stationData.type === 'DC' || stationData.type === 2 ? 2 : 1,
         availableSlots: Number(stationData.availableSlots) || 0,
-        isActive: Boolean(stationData.isActive)
+        isActive: Boolean(stationData.isActive),
+        operatorIds: stationData.operatorIds || []
       };
       const response = await api.put(`/chargingstations/${id}`, payload);
       return { success: true, data: response.data };
@@ -208,7 +210,7 @@ export const authService = {
 
   async deleteChargingStation(id) {
     try {
-      const response = await api.delete(`/ChargingStations/${id}`);
+      const response = await api.delete(`/chargingStations/${id}`);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -227,6 +229,27 @@ export const authService = {
         success: false, 
         error: error.response?.data?.message || 'Failed to update charging station status' 
       };
+    }
+  },
+
+  async getOperatorByEmail(email) {
+    try {
+      const response = await api.get(`/users/by-email/${encodeURIComponent(email)}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Operator not found',
+      };
+    }
+  },
+
+  async getAllOperators() {
+    try {
+      const response = await api.get('/users/operators');
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.message || 'Failed to fetch operators' };
     }
   },
 
