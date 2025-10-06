@@ -26,6 +26,9 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: set station active status
         Task<bool> SetActiveAsync(string id, bool isActive);
+
+		// Inline comment at the beginning of method: hard delete station by id
+		Task<bool> DeleteAsync(string id);
     }
 }
 

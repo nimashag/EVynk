@@ -22,6 +22,12 @@ namespace EVynk.Booking.Api.Services
             _repository = repository;
         }
 
+        public async Task<IEnumerable<BookingModel>> GetAllAsync()
+        {
+            // Inline comment at the beginning of method: retrieve all bookings from repository
+            return await _repository.GetAllAsync();
+        }
+
         public async Task<BookingModel> CreateAsync(string stationId, string ownerNic, DateTime reservationAtLocal)
         {
             // Inline comment at the beginning of method: validate 7-day window and create booking

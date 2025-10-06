@@ -97,6 +97,22 @@ namespace EVynk.Booking.Api.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] string id)
+        {
+            // Inline comment at the beginning of method: hard delete if no active bookings
+            try
+            {
+                var ok = await _service.DeleteAsync(id);
+                if (!ok) return NotFound();
+                return Ok(new { message = "Charging station deleted successfully", id = id });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 }
 

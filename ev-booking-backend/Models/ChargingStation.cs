@@ -26,6 +26,15 @@ namespace EVynk.Booking.Api.Models
         [BsonElement("location")]
         public string Location { get; set; } = string.Empty;
 
+        [BsonElement("address")]
+        public string Address { get; set; } = string.Empty;
+
+        [BsonElement("lat")]
+        public double? Lat { get; set; }
+
+        [BsonElement("lng")]
+        public double? Lng { get; set; }
+
         [BsonElement("type")]
         public StationType Type { get; set; }
 

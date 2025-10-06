@@ -30,6 +30,12 @@ namespace EVynk.Booking.Api.Repositories
             return booking;
         }
 
+        public async Task<IEnumerable<BookingModel>> GetAllAsync()
+        {
+            // Inline comment at the beginning of method: retrieve all bookings
+            return await _bookings.Find(Builders<BookingModel>.Filter.Empty).ToListAsync();
+        }
+
         public async Task<bool> UpdateAsync(string id, BookingModel booking)
         {
             // Inline comment at the beginning of method: replace booking document by id
