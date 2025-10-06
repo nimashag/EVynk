@@ -2,6 +2,7 @@ using EVynk.Booking.Api.Models;
 using EVynk.Booking.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // ==============================================
 //  Project: EVynk Booking Backend (API)
@@ -15,7 +16,7 @@ namespace EVynk.Booking.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Backoffice")]
+    [Authorize(Roles = "Backoffice,StationOperator")]
     public class ChargingStationsController : ControllerBase
     {
         private readonly ChargingStationService _service;
@@ -26,11 +27,19 @@ namespace EVynk.Booking.Api.Controllers
             _service = service;
         }
 
-        [HttpGet]
+       [HttpGet]
         public async Task<IActionResult> List()
         {
-            // Inline comment at the beginning of method: list charging stations
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var stations = await _service.ListAsync();
+
+            if (userRole == UserRole.StationOperator.ToString())
+            {
+                stations = stations.Where(s => s.OperatorIds.Contains(userId)).ToList();
+            }
+
             return Ok(new { message = "Charging stations fetched successfully", data = stations });
         }
 

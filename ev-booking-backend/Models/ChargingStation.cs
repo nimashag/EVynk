@@ -43,6 +43,10 @@ namespace EVynk.Booking.Api.Models
 
         [BsonElement("isActive")]
         public bool IsActive { get; set; } = true;
+
+        [BsonElement("operatorIds")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> OperatorIds { get; set; } = new();
     }
 }
 

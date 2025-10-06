@@ -65,6 +65,7 @@ namespace EVynk.Booking.Api.Repositories
             var result = await _stations.DeleteOneAsync(s => s.Id == id);
             return result.DeletedCount > 0;
         }
+
     }
 }
 

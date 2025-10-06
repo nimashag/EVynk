@@ -34,7 +34,7 @@ namespace EVynk.Booking.Api.Controllers
         {
             // Inline comment at the beginning of method: delegate to service and return created user
             var user = await _authService.RegisterAsync(request.Email, request.Password, request.Role);
-            return Created($"api/users/{user.Id}", new { user.Id, user.Email, Role = user.Role.ToString() });
+            return Created($"api/users/{user.Id}", new { user.Id, user.Email, user.Role });
         }
 
         [HttpPost("login")]

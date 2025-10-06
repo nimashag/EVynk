@@ -34,6 +34,18 @@ namespace EVynk.Booking.Api.Repositories
             // Inline comment at the beginning of method: filter by email
             return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
         }
+
+        public async Task<List<User>> GetByRoleAsync(UserRole role)
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Role, role);
+            return await _users.Find(filter).ToListAsync();
+        }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        }
+
     }
 }
 

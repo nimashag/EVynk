@@ -1,5 +1,7 @@
 using EVynk.Booking.Api.Models;
 using EVynk.Booking.Api.Repositories;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 // ==============================================
 //  Project: EVynk Booking Backend (API)
@@ -15,19 +17,33 @@ namespace EVynk.Booking.Api.Services
     {
         private readonly IChargingStationRepository _repository;
         private readonly IBookingRepository _bookingRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ChargingStationService(IChargingStationRepository repository, IBookingRepository bookingRepository)
+        public ChargingStationService(IChargingStationRepository repository, IBookingRepository bookingRepository, IHttpContextAccessor httpContextAccessor)
         {
             // Inline comment at the beginning of method: capture repository dependencies
             _repository = repository;
             _bookingRepository = bookingRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ChargingStation> CreateAsync(ChargingStation station)
         {
-            // Inline comment at the beginning of method: basic validation and delegate to repo
-            if (string.IsNullOrWhiteSpace(station.Location)) throw new ArgumentException("Location is required");
-            if (station.AvailableSlots < 0) throw new ArgumentException("AvailableSlots cannot be negative");
+            var userRole = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrWhiteSpace(station.Location))
+                throw new ArgumentException("Location is required");
+
+            if (station.AvailableSlots < 0)
+                throw new ArgumentException("AvailableSlots cannot be negative");
+
+            // ✅ Logic: Station Operator can assign only themselves
+            if (userRole == UserRole.StationOperator.ToString())
+            {
+                var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                station.OperatorIds = new List<string> { userId! };
+            }
+
             return await _repository.CreateAsync(station);
         }
 
