@@ -55,22 +55,29 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      // You might want to create a separate stats endpoint
-      const stationsResult = await authService.getChargingStations();
-      if (stationsResult.success) {
+      const [stationsResult, bookingsResult, usersResult] = await Promise.all([
+        authService.getChargingStations(),
+        authService.getBookings(),   // fetch all bookings
+        authService.getEVOwners()   // fetch all users
+      ]);
+  
+      if (stationsResult.success && bookingsResult.success && usersResult.success) {
         const stationsData = stationsResult.data;
+        const bookingsData = bookingsResult.data;
+        const usersData = usersResult.data;
+  
         setStats({
           totalStations: stationsData.length,
           activeStations: stationsData.filter(s => s.isActive).length,
-          totalBookings: 0, // You'll need to fetch this
-          activeUsers: 0    // You'll need to fetch this
+          totalBookings: bookingsData.length,
+          activeUsers: usersData.filter(u => u.isActive).length
         });
       }
     } catch (err) {
-      console.error('Failed to load stats');
+      console.error('Failed to load stats', err);
     }
   };
-
+  
   const handleLogout = () => {
     logout();
   };
