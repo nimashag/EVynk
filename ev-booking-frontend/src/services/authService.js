@@ -164,7 +164,18 @@ export const authService = {
 
   async createChargingStation(stationData) {
     try {
-      const response = await api.post('/chargingstations', stationData);
+      const payload = {
+        // Use provided name as display location; fallback to address/coords
+        location: stationData.name || stationData.address || (stationData.lat && stationData.lng ? `${stationData.lat}, ${stationData.lng}` : ''),
+        address: stationData.address ?? '',
+        lat: stationData.lat ?? null,
+        lng: stationData.lng ?? null,
+        // Backend enum expects numeric (AC=1, DC=2)
+        type: stationData.type === 'DC' || stationData.type === 2 ? 2 : 1,
+        availableSlots: Number(stationData.availableSlots) || 0,
+        isActive: Boolean(stationData.isActive)
+      };
+      const response = await api.post('/chargingstations', payload);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -176,7 +187,16 @@ export const authService = {
 
   async updateChargingStation(id, stationData) {
     try {
-      const response = await api.put(`/chargingstations/${id}`, stationData);
+      const payload = {
+        location: stationData.name || stationData.address || (stationData.lat && stationData.lng ? `${stationData.lat}, ${stationData.lng}` : ''),
+        address: stationData.address ?? '',
+        lat: stationData.lat ?? null,
+        lng: stationData.lng ?? null,
+        type: stationData.type === 'DC' || stationData.type === 2 ? 2 : 1,
+        availableSlots: Number(stationData.availableSlots) || 0,
+        isActive: Boolean(stationData.isActive)
+      };
+      const response = await api.put(`/chargingstations/${id}`, payload);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -188,7 +208,7 @@ export const authService = {
 
   async deleteChargingStation(id) {
     try {
-      const response = await api.delete(`/chargingstations/${id}`);
+      const response = await api.delete(`/ChargingStations/${id}`);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -270,6 +290,31 @@ export const authService = {
       };
     }
   },
+
+// Booking Management - Status Updates
+async activateBooking(id) {
+  try {
+    const response = await api.patch(`/bookings/${id}/activate`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error.response?.data?.message || 'Failed to activate booking' 
+    };
+  }
+},
+
+async completeBooking(id) {
+  try {
+    const response = await api.patch(`/bookings/${id}/complete`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error.response?.data?.message || 'Failed to complete booking' 
+    };
+  }
+},
 
   // Register user (only for backoffice users)
   async register(email, password, role) {

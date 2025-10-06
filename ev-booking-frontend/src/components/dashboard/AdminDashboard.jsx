@@ -3,10 +3,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../common/Navigation';
+import StationsMap from '../common/StationsMap';
 
 const AdminDashboard = () => {
   const { user, logout, loading: authLoading } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
+  const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (user && !authLoading) {
       fetchDashboardData();
+      fetchStations();
     }
   }, [user, authLoading]);
 
@@ -29,6 +32,17 @@ const AdminDashboard = () => {
       setError('Failed to load dashboard data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStations = async () => {
+    try {
+      const result = await authService.getChargingStations();
+      if (result.success) {
+        setStations(result.data);
+      }
+    } catch (err) {
+      console.error('Failed to load stations for map');
     }
   };
 
@@ -69,6 +83,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* Stations Map */}
+          <div className="mt-6">
+            <StationsMap stations={stations} height="500px" />
+          </div>
 
           {/* Management Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">

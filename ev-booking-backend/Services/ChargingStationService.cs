@@ -67,6 +67,15 @@ namespace EVynk.Booking.Api.Services
             
             return await _repository.SetActiveAsync(id, isActive);
         }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            // Inline comment at the beginning of method: hard delete guard against active bookings
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id is required");
+            var hasActive = await _bookingRepository.AnyActiveForStationAsync(id);
+            if (hasActive) throw new InvalidOperationException("Cannot delete station with active bookings");
+            return await _repository.DeleteAsync(id);
+        }
     }
 }
 

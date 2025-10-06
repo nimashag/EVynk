@@ -58,6 +58,13 @@ namespace EVynk.Booking.Api.Repositories
             var result = await _stations.UpdateOneAsync(s => s.Id == id, update);
             return result.ModifiedCount > 0;
         }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            // Inline comment at the beginning of method: delete station document by id
+            var result = await _stations.DeleteOneAsync(s => s.Id == id);
+            return result.DeletedCount > 0;
+        }
     }
 }
 

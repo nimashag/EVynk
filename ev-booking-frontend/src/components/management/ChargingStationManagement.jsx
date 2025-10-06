@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../../services/authService';
 import Navigation from '../common/Navigation';
+import LocationPicker from '../common/LocationPicker';
 
 const ChargingStationManagement = () => {
   const [stations, setStations] = useState([]);
@@ -9,7 +10,10 @@ const ChargingStationManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingStation, setEditingStation] = useState(null);
   const [formData, setFormData] = useState({
-    location: '',
+    name: '',
+    lat: null,
+    lng: null,
+    address: '',
     type: 'AC',
     availableSlots: 1,
     isActive: true
@@ -64,7 +68,10 @@ const ChargingStationManagement = () => {
   const handleEdit = (station) => {
     setEditingStation(station);
     setFormData({
-      location: station.location,
+      name: station.location,
+      lat: station.lat,
+      lng: station.lng,
+      address: station.address,
       type: station.type,
       availableSlots: station.availableSlots,
       isActive: station.isActive
@@ -72,18 +79,24 @@ const ChargingStationManagement = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this charging station?')) {
+  const handleDelete = async (station) => {
+    if (window.confirm('Are you sure you want to permanently delete this charging station?')) {
       try {
         setLoading(true);
-        const result = await authService.deleteChargingStation(id);
+        const result = await authService.deleteChargingStation(station.id || station.Id);
+        
         if (result.success) {
-          fetchStations();
+          fetchStations(); // Refresh the list
         } else {
           setError(result.error);
         }
       } catch (err) {
-        setError('Failed to delete charging station');
+        // Handle the case where station has active bookings
+        if (err.message.includes('active bookings')) {
+          setError('Cannot delete station with active bookings. Deactivate it first.');
+        } else {
+          setError('Failed to delete charging station');
+        }
       } finally {
         setLoading(false);
       }
@@ -108,13 +121,25 @@ const ChargingStationManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      location: '',
+      name: '',
+      lat: null,
+      lng: null,
+      address: '',
       type: 'AC',
       availableSlots: 1,
       isActive: true
     });
     setEditingStation(null);
     setShowModal(false);
+  };
+
+  const handleLocationSelect = (locationData) => {
+    setFormData(prev => ({
+      ...prev,
+      lat: locationData.lat,
+      lng: locationData.lng,
+      address: locationData.address
+    }));
   };
 
   return (
@@ -157,6 +182,11 @@ const ChargingStationManagement = () => {
               </div>
               
               <div className="space-y-2 mb-4">
+                {station.address && (
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Address:</span> {station.address}
+                  </p>
+                )}
                 <p className="text-sm text-gray-600">
                   <span className="font-medium">Type:</span> {station.type}
                 </p>
@@ -184,7 +214,7 @@ const ChargingStationManagement = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(station.id)}
+                    onClick={() => handleDelete(station)}
                     className="text-red-600 hover:text-red-500 text-sm font-medium"
                   >
                     Delete
@@ -199,7 +229,7 @@ const ChargingStationManagement = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 {editingStation ? 'Edit Charging Station' : 'Add New Charging Station'}
@@ -207,15 +237,31 @@ const ChargingStationManagement = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Location *
+                    Station Name *
                   </label>
                   <input
                     type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="e.g., Colombo Supercharge - Bambalapitiya"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Pick Location (Sri Lanka)
+                  </label>
+                  <LocationPicker 
+                    onLocationSelect={handleLocationSelect}
+                    initialLocation={formData.lat && formData.lng ? { lat: formData.lat, lng: formData.lng } : null}
+                  />
+                  {(formData.address || (formData.lat && formData.lng)) && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      Selected: {formData.address || `${formData.lat?.toFixed(6)}, ${formData.lng?.toFixed(6)}`}
+                    </div>
+                  )}
                 </div>
 
                 <div>
