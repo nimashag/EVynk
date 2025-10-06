@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
+import Navigation from '../common/Navigation';
 
 const AdminDashboard = () => {
   const { user, logout, loading: authLoading } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -43,23 +46,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Backoffice Dashboard</h1>
-              <p className="text-gray-600">Welcome, {user?.role}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -83,23 +70,26 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* Dashboard Cards */}
+          {/* Management Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div 
+              onClick={() => navigate('/admin/ev-owners')}
+              className="bg-white overflow-hidden shadow rounded-lg cursor-pointer hover:shadow-lg transition-shadow duration-300"
+            >
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                      <span className="text-white font-bold">📊</span>
+                      <span className="text-white font-bold">👥</span>
                     </div>
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Users
+                        EV Owner Management
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        Coming Soon
+                        Manage EV owners
                       </dd>
                     </dl>
                   </div>
@@ -107,7 +97,10 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div 
+              onClick={() => navigate('/admin/charging-stations')}
+              className="bg-white overflow-hidden shadow rounded-lg cursor-pointer hover:shadow-lg transition-shadow duration-300"
+            >
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -121,7 +114,7 @@ const AdminDashboard = () => {
                         Charging Stations
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        Coming Soon
+                        Manage stations
                       </dd>
                     </dl>
                   </div>
@@ -129,7 +122,10 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div 
+              onClick={() => navigate('/admin/bookings')}
+              className="bg-white overflow-hidden shadow rounded-lg cursor-pointer hover:shadow-lg transition-shadow duration-300"
+            >
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -140,10 +136,10 @@ const AdminDashboard = () => {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Bookings
+                        Booking Management
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        Coming Soon
+                        Manage bookings
                       </dd>
                     </dl>
                   </div>

@@ -87,6 +87,190 @@ export const authService = {
     }
   },
 
+  // EV Owner Management
+  async getEVOwners() {
+    try {
+      const response = await api.get('/owners');
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to load EV owners' 
+      };
+    }
+  },
+
+  async createEVOwner(ownerData) {
+    try {
+      const response = await api.post('/owners', ownerData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to create EV owner' 
+      };
+    }
+  },
+
+  async updateEVOwner(nic, ownerData) {
+    try {
+      const response = await api.put(`/owners/${nic}`, ownerData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update EV owner' 
+      };
+    }
+  },
+
+  async deleteEVOwner(nic) {
+    try {
+      const response = await api.delete(`/owners/${nic}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to delete EV owner' 
+      };
+    }
+  },
+
+  async toggleEVOwnerStatus(nic, isActive) {
+    try {
+      const endpoint = isActive ? `/owners/${nic}/activate` : `/owners/${nic}/deactivate`;
+      const response = await api.put(endpoint);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update EV owner status' 
+      };
+    }
+  },
+
+  // Charging Station Management
+  async getChargingStations() {
+    try {
+      const response = await api.get('/chargingstations');
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to load charging stations' 
+      };
+    }
+  },
+
+  async createChargingStation(stationData) {
+    try {
+      const response = await api.post('/chargingstations', stationData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to create charging station' 
+      };
+    }
+  },
+
+  async updateChargingStation(id, stationData) {
+    try {
+      const response = await api.put(`/chargingstations/${id}`, stationData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update charging station' 
+      };
+    }
+  },
+
+  async deleteChargingStation(id) {
+    try {
+      const response = await api.delete(`/chargingstations/${id}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to delete charging station' 
+      };
+    }
+  },
+
+  async toggleChargingStationStatus(id, isActive) {
+    try {
+      const response = await api.patch(`/chargingstations/${id}/active`, { isActive });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update charging station status' 
+      };
+    }
+  },
+
+  // Booking Management
+  async getBookings() {
+    try {
+      const response = await api.get('/bookings');
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to load bookings' 
+      };
+    }
+  },
+
+  async createBooking(bookingData) {
+    try {
+      // Transform frontend data to match backend API
+      const backendData = {
+        StationId: bookingData.chargingStationId,
+        OwnerNic: bookingData.evOwnerId, // Assuming this is the NIC
+        ReservationAt: new Date(`${bookingData.reservationDate}T${bookingData.reservationTime}`)
+      };
+      const response = await api.post('/bookings', backendData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to create booking' 
+      };
+    }
+  },
+
+  async updateBooking(id, bookingData) {
+    try {
+      // Transform frontend data to match backend API
+      const backendData = {
+        StationId: bookingData.chargingStationId,
+        OwnerNic: bookingData.evOwnerId, // Assuming this is the NIC
+        ReservationAt: new Date(`${bookingData.reservationDate}T${bookingData.reservationTime}`)
+      };
+      const response = await api.put(`/bookings/${id}`, backendData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update booking' 
+      };
+    }
+  },
+
+  async cancelBooking(id) {
+    try {
+      const response = await api.delete(`/bookings/${id}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to cancel booking' 
+      };
+    }
+  },
+
   // Register user (only for backoffice users)
   async register(email, password, role) {
     try {

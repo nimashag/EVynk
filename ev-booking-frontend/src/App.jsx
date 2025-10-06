@@ -5,6 +5,9 @@ import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import OperatorDashboard from './components/dashboard/OperatorDashboard';
+import EVOwnerManagement from './components/management/EVOwnerManagement';
+import ChargingStationManagement from './components/management/ChargingStationManagement';
+import BookingManagement from './components/management/BookingManagement';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
@@ -24,6 +27,30 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="Backoffice">
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/ev-owners" 
+              element={
+                <ProtectedRoute requiredRole="Backoffice">
+                  <EVOwnerManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/charging-stations" 
+              element={
+                <ProtectedRoute requiredRole="Backoffice">
+                  <ChargingStationManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/bookings" 
+              element={
+                <ProtectedRoute requiredRole="Backoffice">
+                  <BookingManagement />
                 </ProtectedRoute>
               } 
             />

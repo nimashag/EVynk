@@ -1,0 +1,289 @@
+import { useState, useEffect } from 'react';
+import { authService } from '../../services/authService';
+import Navigation from '../common/Navigation';
+
+const ChargingStationManagement = () => {
+  const [stations, setStations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingStation, setEditingStation] = useState(null);
+  const [formData, setFormData] = useState({
+    location: '',
+    type: 'AC',
+    availableSlots: 1,
+    isActive: true
+  });
+
+  useEffect(() => {
+    fetchStations();
+  }, []);
+
+  const fetchStations = async () => {
+    try {
+      setLoading(true);
+      const result = await authService.getChargingStations();
+      if (result.success) {
+        setStations(result.data);
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('Failed to load charging stations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      let result;
+      if (editingStation) {
+        result = await authService.updateChargingStation(editingStation.id, formData);
+      } else {
+        result = await authService.createChargingStation(formData);
+      }
+      
+      if (result.success) {
+        setShowModal(false);
+        setEditingStation(null);
+        resetForm();
+        fetchStations();
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('Failed to save charging station');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (station) => {
+    setEditingStation(station);
+    setFormData({
+      location: station.location,
+      type: station.type,
+      availableSlots: station.availableSlots,
+      isActive: station.isActive
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this charging station?')) {
+      try {
+        setLoading(true);
+        const result = await authService.deleteChargingStation(id);
+        if (result.success) {
+          fetchStations();
+        } else {
+          setError(result.error);
+        }
+      } catch (err) {
+        setError('Failed to delete charging station');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleToggleStatus = async (id, currentStatus) => {
+    try {
+      setLoading(true);
+      const result = await authService.toggleChargingStationStatus(id, !currentStatus);
+      if (result.success) {
+        fetchStations();
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('Failed to update charging station status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      location: '',
+      type: 'AC',
+      availableSlots: 1,
+      isActive: true
+    });
+    setEditingStation(null);
+    setShowModal(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navigation />
+      <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Charging Station Management</h2>
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+        >
+          Add New Station
+        </button>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stations.map((station) => (
+            <div key={station.id} className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">{station.location}</h3>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  station.isActive 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {station.isActive ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Type:</span> {station.type}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Available Slots:</span> {station.availableSlots}
+                </p>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleToggleStatus(station.id, station.isActive)}
+                    className={`text-sm font-medium ${
+                      station.isActive 
+                        ? 'text-red-600 hover:text-red-500' 
+                        : 'text-green-600 hover:text-green-500'
+                    }`}
+                  >
+                    {station.isActive ? 'Deactivate' : 'Activate'}
+                  </button>
+                  <button
+                    onClick={() => handleEdit(station)}
+                    className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(station.id)}
+                    className="text-red-600 hover:text-red-500 text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {editingStation ? 'Edit Charging Station' : 'Add New Charging Station'}
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.location}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type *
+                  </label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="AC">AC (Alternating Current)</option>
+                    <option value="DC">DC (Direct Current)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Available Slots *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.availableSlots}
+                    onChange={(e) => setFormData({...formData, availableSlots: parseInt(e.target.value)})}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                    Active
+                  </label>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md disabled:opacity-50"
+                  >
+                    {loading ? 'Saving...' : (editingStation ? 'Update' : 'Create')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+    </div>
+  );
+};
+
+export default ChargingStationManagement;
