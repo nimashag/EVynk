@@ -156,7 +156,7 @@ const EVOwnerManagement = () => {
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
             {owners.map((owner) => (
-              <li key={owner.id} className="px-6 py-4">
+              <li key={owner.nic} className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
@@ -187,7 +187,7 @@ const EVOwnerManagement = () => {
                       {owner.isActive ? 'Active' : 'Inactive'}
                     </span>
                     <button
-                      onClick={() => handleToggleStatus(owner.id, owner.isActive)}
+                      onClick={() => handleToggleStatus(owner.nic, owner.isActive)}
                       className={`text-sm font-medium ${
                         owner.isActive 
                           ? 'text-red-600 hover:text-red-500' 
@@ -203,7 +203,7 @@ const EVOwnerManagement = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(owner.id)}
+                      onClick={() => handleDelete(owner.nic)}
                       className="text-red-600 hover:text-red-500 text-sm font-medium"
                     >
                       Delete

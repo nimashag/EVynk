@@ -50,6 +50,26 @@ namespace EVynk.Booking.Api.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            // Inline comment at the beginning of method: retrieve all bookings
+            try
+            {
+                var bookings = await _service.GetAllAsync();
+                return Ok(new
+                {
+                    message = "Bookings fetched successfully",
+                    data = bookings
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving bookings", error = ex.Message });
+            }
+        }
+        
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreateBookingRequest request)
         {
