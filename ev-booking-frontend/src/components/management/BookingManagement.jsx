@@ -18,6 +18,13 @@ const BookingManagement = () => {
     status: 'Pending'
   });
 
+  const statusMap = {
+    1: 'Pending',
+    2: 'Active',
+    3: 'Completed',
+    4: 'Cancelled'
+  };  
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -116,6 +123,25 @@ const BookingManagement = () => {
     }
   };
 
+  const handleNextStatus = async (booking) => {
+    try {
+      setLoading(true);
+      let result;
+      if (booking.status === 1) result = await authService.activateBooking(booking.id);
+      else if (booking.status === 2) result = await authService.completeBooking(booking.id);
+      else return; // Completed or Cancelled cannot be advanced
+
+      console.log('API result:', result);
+
+      if (result.success) fetchData();
+      else setError(result.error);
+    } catch (err) {
+      setError('Failed to update status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       evOwnerId: '',
@@ -130,10 +156,10 @@ const BookingManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'Active': return 'bg-green-100 text-green-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
-      case 'Completed': return 'bg-blue-100 text-blue-800';
+      case 1: return 'bg-yellow-100 text-yellow-800';
+      case 2: return 'bg-green-100 text-green-800';
+      case 3: return 'bg-red-100 text-red-800';
+      case 4: return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -143,7 +169,7 @@ const BookingManagement = () => {
     const now = new Date();
     const twelveHoursFromNow = new Date(now.getTime() + (12 * 60 * 60 * 1000));
     
-    return reservationDateTime > twelveHoursFromNow && booking.status === 'Pending';
+    return reservationDateTime > twelveHoursFromNow && booking.status !== 4;
   };
 
   return (
@@ -199,26 +225,37 @@ const BookingManagement = () => {
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
-                            {booking.status}
-                          </span>
-                          {canModify && (
-                            <>
-                              <button
-                                onClick={() => handleEdit(booking)}
-                                className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleCancel(booking.id)}
-                                className="text-red-600 hover:text-red-500 text-sm font-medium"
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          )}
-                        </div>
+  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+    {booking.status}
+  </span>
+
+  {canModify && (
+    <>
+      <button
+        onClick={() => handleEdit(booking)}
+        className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+      >
+        Edit
+      </button>
+      <button
+        onClick={() => handleCancel(booking.id)}
+        className="text-red-600 hover:text-red-500 text-sm font-medium"
+      >
+        Cancel
+      </button>
+    </>
+  )}
+
+  {/* Add this button for advancing status */}
+  {(booking.status === 1 || booking.status === 2) && (
+  <button
+    onClick={() => handleNextStatus(booking)}
+    className="text-green-600 hover:text-green-500 text-sm font-medium"
+  >
+    {booking.status === 1 ? 'Activate' : 'Complete'}
+  </button>
+)}
+</div>
                       </div>
                     </div>
                   </div>
@@ -305,8 +342,7 @@ const BookingManagement = () => {
                   </div>
                 </div>
 
-
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Status
                   </label>
@@ -320,7 +356,7 @@ const BookingManagement = () => {
                     <option value="Cancelled">Cancelled</option>
                     <option value="Completed">Completed</option>
                   </select>
-                </div>
+                </div> */}
 
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
