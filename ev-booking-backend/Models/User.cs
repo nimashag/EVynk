@@ -14,7 +14,8 @@ namespace EVynk.Booking.Api.Models
     public enum UserRole
     {
         Backoffice = 1,
-        StationOperator = 2
+        StationOperator = 2,
+        Owner = 3 
     }
 
     public class User

@@ -81,6 +81,7 @@ namespace EVynk.Booking.Api.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        
     }
 }
 
