@@ -10,22 +10,18 @@ using System.Text;
 // ==============================================
 //  Project: EVynk Booking Backend (API)
 //  File: Program.cs
-//  Created: 2025-10-07
+//  Created: 2025-10-01
 //  Description: Application entry point and host configuration.
-//               Registers Mongo, JWT, services, and controllers.
 //  Author: Student
 // ==============================================
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------------------------------------------------------------------------
-// 1. Controller and basic services
-// ---------------------------------------------------------------------------
+// Add services to the container.
+// Note: We enable controllers to support attribute-routed controllers.
 builder.Services.AddControllers();
 
-// ---------------------------------------------------------------------------
-// 2. CORS (for frontend + mobile debugging)
-// ---------------------------------------------------------------------------
+// Add CORS services
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -37,106 +33,58 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ---------------------------------------------------------------------------
-// 3. MongoDB setup
-// ---------------------------------------------------------------------------
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection(MongoDbSettings.SectionName));
+// Bind MongoDB settings and register context
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(MongoDbSettings.SectionName));
 builder.Services.AddSingleton<MongoDbContext>();
-
-// ---------------------------------------------------------------------------
-// 4. Dependency Injection (Repositories + Services)
-// ---------------------------------------------------------------------------
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.AddScoped<AuthService>();
-
 builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
 builder.Services.AddScoped<OwnerService>();
-
 builder.Services.AddScoped<IChargingStationRepository, ChargingStationRepository>();
 builder.Services.AddScoped<ChargingStationService>();
-
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<BookingService>();
-
 builder.Services.AddHttpContextAccessor();
 
-// ---------------------------------------------------------------------------
-// 5. JWT Authentication (shared for Backoffice, Operators, Owners)
-// ---------------------------------------------------------------------------
-
-// ✅ Aligns with your appsettings.json:
-// "Jwt": { "Key": "...", "Issuer": "...", "Audience": "...", "ExpiryMinutes": 120 }
-var jwtKey = builder.Configuration["Jwt:Key"];
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? "development-secret-change-me"));
-
+// JWT Authentication
+var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret ?? "development-secret-change-me"));
 builder.Services.AddAuthentication(options =>
 {
-    // configure JWT bearer defaults
+    // Inline comment at the beginning of method: configure JWT bearer defaults
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
+}).AddJwtBearer(options =>
 {
-    // configure token validation parameters
+    // Inline comment at the beginning of method: configure token validation parameters
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = key,
-        ClockSkew = TimeSpan.Zero // prevents minor timing errors
+        ValidIssuer = builder.Configuration[$"{JwtSettings.SectionName}:Issuer"],
+        ValidAudience = builder.Configuration[$"{JwtSettings.SectionName}:Audience"],
+        IssuerSigningKey = key
     };
 });
 
-// ---------------------------------------------------------------------------
-// 6. Swagger / OpenAPI (with JWT support)
-// ---------------------------------------------------------------------------
+// Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    // Inline comment at the beginning of method: configuring Swagger generation options
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "EVynk Booking API",
-        Version = "v1",
-        Description = "EV Charging Booking System (Web + Mobile)"
-    });
-
-    // Add JWT bearer auth to Swagger UI
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Enter JWT token (without 'Bearer ' prefix)",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        Version = "v1"
     });
 });
 
-// ---------------------------------------------------------------------------
-// 7. Build + Middleware pipeline
-// ---------------------------------------------------------------------------
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -148,10 +96,11 @@ app.UseHttpsRedirection();
 // Enable CORS
 app.UseCors("AllowFrontend");
 
-// Authentication + Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+
