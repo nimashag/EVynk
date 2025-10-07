@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVynk.Booking.Api", "ev-booking-backend\EVynk.Booking.Api.csproj", "{B533F7D4-66AE-E41B-899A-C0DCB254FF4A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B533F7D4-66AE-E41B-899A-C0DCB254FF4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B533F7D4-66AE-E41B-899A-C0DCB254FF4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B533F7D4-66AE-E41B-899A-C0DCB254FF4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B533F7D4-66AE-E41B-899A-C0DCB254FF4A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FA591444-01C9-435B-A3A7-B22B7EC68B66}
+	EndGlobalSection
+EndGlobal
