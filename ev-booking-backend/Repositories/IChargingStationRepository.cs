@@ -29,6 +29,9 @@ namespace EVynk.Booking.Api.Repositories
 
 		// Inline comment at the beginning of method: hard delete station by id
 		Task<bool> DeleteAsync(string id);
+
+        // In IChargingStationRepository.cs
+Task<List<ChargingStation>> GetByOperatorIdAsync(string operatorId);
     }
 }
 

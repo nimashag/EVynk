@@ -28,6 +28,12 @@ namespace EVynk.Booking.Api.Services
             return await _repository.GetAllAsync();
         }
 
+        public async Task<List<BookingModel>> GetBookingsByStationIdsAsync(List<string> stationIds)
+{
+    return await _repository.GetByStationIdsAsync(stationIds);
+}
+
+
         public async Task<BookingModel> CreateAsync(string stationId, string ownerNic, DateTime reservationAtLocal)
         {
             // Inline comment at the beginning of method: validate 7-day window and create booking

@@ -28,6 +28,10 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
     mapTypeControl: true,
     streetViewControl: false,
     fullscreenControl: true,
+    zoomControl: true,
+    gestureHandling: 'greedy',
+    minZoom: 6,
+    maxZoom: 18,
   };
 
   // Initialize map
@@ -118,6 +122,19 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
       const bounds = new window.google.maps.LatLngBounds();
       newMarkers.forEach(marker => bounds.extend(marker.getPosition()));
       map.fitBounds(bounds, 50); // 50px padding
+
+      // Prevent over-zoom after fitBounds
+      const listener = window.google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+        const maxAutoZoom = 14;
+        if (map.getZoom() > maxAutoZoom) {
+          map.setZoom(maxAutoZoom);
+        }
+      });
+
+      // Cleanup the one-time listener if effect re-runs quickly
+      setTimeout(() => {
+        window.google.maps.event.removeListener(listener);
+      }, 2000);
     }
 
     // Cleanup function

@@ -33,8 +33,25 @@ namespace EVynk.Booking.Api.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             // Inline comment at the beginning of method: delegate to service and return created user
-            var user = await _authService.RegisterAsync(request.Email, request.Password, request.Role);
-            return Created($"api/users/{user.Id}", new { user.Id, user.Email, user.Role });
+            try
+            {
+                var user = await _authService.RegisterAsync(request.Email, request.Password, request.Role);
+                return Created($"api/users/{user.Id}", new { user.Id, user.Email, user.Role });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Allow Station Operators to self-register without admin privileges
+        [HttpPost("register/operator")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterOperator([FromBody] LoginRequest request)
+        {
+            // Inline comment at the beginning of method: self-service signup defaults to StationOperator role
+            var user = await _authService.RegisterAsync(request.Email, request.Password, UserRole.StationOperator);
+            return Created($"api/users/{user.Id}", new { user.Id, user.Email, Role = user.Role });
         }
 
         [HttpPost("login")]

@@ -33,6 +33,8 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: check if station has active bookings
         Task<bool> AnyActiveForStationAsync(string stationId);
+
+        Task<List<BookingModel>> GetByStationIdsAsync(List<string> stationIds);
     }
 }
 

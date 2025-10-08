@@ -134,12 +134,12 @@ const EVOwnerManagement = () => {
       <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">EV Owner Management</h2>
-        <button
+        {/* <button
           onClick={() => setShowModal(true)}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
         >
           Add New EV Owner
-        </button>
+        </button> */}
       </div>
 
       {error && (
@@ -196,12 +196,12 @@ const EVOwnerManagement = () => {
                     >
                       {owner.isActive ? 'Deactivate' : 'Activate'}
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => handleEdit(owner)}
                       className="text-blue-600 hover:text-blue-500 text-sm font-medium"
                     >
                       Edit
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => handleDelete(owner.nic)}
                       className="text-red-600 hover:text-red-500 text-sm font-medium"
