@@ -13,21 +13,27 @@ namespace EVynk.Booking.Api.Repositories
 {
     public interface IBookingRepository
     {
+        // Inline comment at the beginning of method: create a new booking
         Task<BookingModel> CreateAsync(BookingModel booking);
+
+        // Inline comment at the beginning of method: retrieve all bookings
         Task<IEnumerable<BookingModel>> GetAllAsync();
-        Task<IEnumerable<BookingModel>> GetByOwnerAsync(string ownerNic);
+        
+        // Inline comment at the beginning of method: update booking details
         Task<bool> UpdateAsync(string id, BookingModel booking);
+
+        // Inline comment at the beginning of method: cancel booking by id
         Task<bool> CancelAsync(string id);
+
+        // Inline comment at the beginning of method: get booking by id
         Task<BookingModel?> GetByIdAsync(string id);
+
+        // Inline comment at the beginning of method: update booking status
         Task<bool> UpdateStatusAsync(string id, BookingStatus status);
+
+        // Inline comment at the beginning of method: check if station has active bookings
         Task<bool> AnyActiveForStationAsync(string stationId);
-
-        // conflict checks
-        Task<bool> ExistsAtAsync(string stationId, DateTime reservationAtUtc);
-        Task<bool> OwnerHasAtAsync(string ownerNic, DateTime reservationAtUtc);
-
-        // conflict checks excluding a specific booking (for modify)
-        Task<bool> ExistsAtExceptAsync(string stationId, DateTime reservationAtUtc, string excludeId);
-        Task<bool> OwnerHasAtExceptAsync(string ownerNic, DateTime reservationAtUtc, string excludeId);
     }
 }
+
+

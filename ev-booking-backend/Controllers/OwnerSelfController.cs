@@ -9,9 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 //  File: OwnerSelfController.cs
 //  Created: 2025-10-07
 //  Description: Self-service endpoints for EV Owners.
-//               Owners can view/update profile, deactivate,
-//               create/modify/cancel their reservations,
-//               and list their own reservations.
+//               Owners can view/update their own profile and deactivate themselves.
+//               Reactivation remains Backoffice-only (per assignment rules).
 //  Author: Student
 // ==============================================
 
@@ -23,24 +22,22 @@ namespace EVynk.Booking.Api.Controllers
     public class OwnerSelfController : ControllerBase
     {
         private readonly OwnerService _owners;
-        private readonly BookingService _bookings;
 
-        public OwnerSelfController(OwnerService owners, BookingService bookings)
+        public OwnerSelfController(OwnerService owners)
         {
-            _owners   = owners;
-            _bookings = bookings;
+            // Inline: capture service dependency
+            _owners = owners;
         }
 
-        // helper: get current user's email from JWT
+        // Small helper: get current user's email from JWT
         private string? CurrentEmail =>
             User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name;
-
-        // -------------------- Profile --------------------
 
         // GET /api/owner/me
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {
+            // Inline: resolve owner by token email
             var email = CurrentEmail;
             if (string.IsNullOrWhiteSpace(email)) return Unauthorized(new { message = "Email claim missing." });
 
@@ -61,7 +58,7 @@ namespace EVynk.Booking.Api.Controllers
             });
         }
 
-        public record UpdateMeRequest(string? FullName, string? Phone);
+        public record UpdateMeRequest(string? FullName, string? Phone /*, string? Email */);
 
         // PUT /api/owner/me
         [HttpPut("me")]
@@ -73,8 +70,12 @@ namespace EVynk.Booking.Api.Controllers
             var owner = await _owners.FindByEmailAsync(email);
             if (owner is null) return NotFound(new { message = "Owner profile not found." });
 
+            // Inline: apply only provided fields
             if (!string.IsNullOrWhiteSpace(req.FullName)) owner.FullName = req.FullName!;
             if (!string.IsNullOrWhiteSpace(req.Phone))    owner.Phone    = req.Phone!;
+
+            // NOTE: If you want to allow changing email, also update the User account.
+            // That requires an AuthService.UpdateEmailAsync(...) – omitted to keep scope clear.
 
             var ok = await _owners.UpdateAsync(owner.Nic, owner);
             if (!ok) return StatusCode(500, new { message = "Owner update failed." });
@@ -82,7 +83,14 @@ namespace EVynk.Booking.Api.Controllers
             return Ok(new
             {
                 message = "Owner updated successfully",
-                owner = new { owner.Nic, owner.FullName, owner.Email, owner.Phone, owner.IsActive }
+                owner = new
+                {
+                    owner.Nic,
+                    owner.FullName,
+                    owner.Email,
+                    owner.Phone,
+                    owner.IsActive
+                }
             });
         }
 
@@ -99,135 +107,14 @@ namespace EVynk.Booking.Api.Controllers
             var ok = await _owners.DeactivateAsync(owner.Nic);
             if (!ok) return StatusCode(500, new { message = "Deactivation failed." });
 
-            return Ok(new { message = "EV owner deactivated successfully", nic = owner.Nic, isActive = false });
-        }
-
-        // -------------------- Reservations (Owner) --------------------
-
-        public record CreateReservationRequest(string StationId, DateTime ReservationAt);
-
-        // POST /api/owner/reservations
-        [HttpPost("reservations")]
-        public async Task<IActionResult> CreateReservation([FromBody] CreateReservationRequest request)
-        {
-            var email = CurrentEmail;
-            if (string.IsNullOrWhiteSpace(email)) return Unauthorized(new { message = "Email claim missing." });
-            var owner = await _owners.FindByEmailAsync(email);
-            if (owner is null) return NotFound(new { message = "Owner profile not found." });
-
-            try
-            {
-                var created = await _bookings.CreateOwnerReservationAsync(
-                    stationId: request.StationId,
-                    ownerNic: owner.Nic,
-                    reservationAtLocal: request.ReservationAt
-                );
-
-                // summary style payload
-                return Created($"api/bookings/{created.Id}", new
-                {
-                    message = "Reservation created successfully",
-                    summary = new
-                    {
-                        created.Id,
-                        created.StationId,
-                        created.OwnerNic,
-                        reservationAtUtc = created.ReservationAtUtc,
-                        status = created.Status.ToString(),
-                        created.CreatedAtUtc
-                    }
-                });
-            }
-            catch (ArgumentException ex)      { return BadRequest(new { message = ex.Message }); }
-            catch (InvalidOperationException ex){ return Conflict(new { message = ex.Message }); }
-        }
-
-        // GET /api/owner/reservations
-        [HttpGet("reservations")]
-        public async Task<IActionResult> GetMyReservations()
-        {
-            var email = CurrentEmail;
-            if (string.IsNullOrWhiteSpace(email)) return Unauthorized(new { message = "Email claim missing." });
-            var owner = await _owners.FindByEmailAsync(email);
-            if (owner is null) return NotFound(new { message = "Owner profile not found." });
-
-            var bookings = await _bookings.GetByOwnerAsync(owner.Nic);
+            // Optional: you could also invalidate active refresh tokens here.
 
             return Ok(new
             {
-                message = "Your bookings fetched successfully",
-                count = bookings.Count(),
-                data = bookings.Select(b => new
-                {
-                    b.Id,
-                    b.StationId,
-                    b.OwnerNic,
-                    b.ReservationAtUtc,
-                    status = b.Status.ToString(),
-                    b.CreatedAtUtc
-                })
+                message = "EV owner deactivated successfully",
+                nic = owner.Nic,
+                isActive = false
             });
-        }
-
-        public record ModifyReservationRequest(string StationId, DateTime ReservationAt);
-
-        // PUT /api/owner/reservations/{id}
-        [HttpPut("reservations/{id}")]
-        public async Task<IActionResult> ModifyReservation([FromRoute] string id, [FromBody] ModifyReservationRequest req)
-        {
-            var email = CurrentEmail;
-            if (string.IsNullOrWhiteSpace(email)) return Unauthorized(new { message = "Email claim missing." });
-            var owner = await _owners.FindByEmailAsync(email);
-            if (owner is null) return NotFound(new { message = "Owner profile not found." });
-
-            try
-            {
-                var modified = await _bookings.UpdateByOwnerAsync(
-                    id: id,
-                    ownerNic: owner.Nic,
-                    stationId: req.StationId,
-                    reservationAtLocal: req.ReservationAt
-                );
-
-                if (modified is null) return NotFound(new { message = "Booking not found." });
-
-                return Ok(new
-                {
-                    message = "Reservation updated successfully",
-                    summary = new
-                    {
-                        modified.Id,
-                        modified.StationId,
-                        modified.OwnerNic,
-                        reservationAtUtc = modified.ReservationAtUtc,
-                        status = modified.Status.ToString(),
-                        modified.CreatedAtUtc
-                    }
-                });
-            }
-            catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
-            catch (ArgumentException ex)           { return BadRequest(new { message = ex.Message }); }
-            catch (InvalidOperationException ex)    { return Conflict(new { message = ex.Message }); }
-        }
-
-        // DELETE /api/owner/reservations/{id}
-        [HttpDelete("reservations/{id}")]
-        public async Task<IActionResult> CancelReservation([FromRoute] string id)
-        {
-            var email = CurrentEmail;
-            if (string.IsNullOrWhiteSpace(email)) return Unauthorized(new { message = "Email claim missing." });
-            var owner = await _owners.FindByEmailAsync(email);
-            if (owner is null) return NotFound(new { message = "Owner profile not found." });
-
-            try
-            {
-                var cancelled = await _bookings.CancelByOwnerAsync(id, owner.Nic);
-                if (!cancelled) return NotFound(new { message = "Booking not found." });
-
-                return Ok(new { message = "Reservation cancelled successfully", id, status = "Cancelled" });
-            }
-            catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
-            catch (InvalidOperationException ex)    { return Conflict(new { message = ex.Message }); }
         }
     }
 }
