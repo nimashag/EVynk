@@ -47,6 +47,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<OwnerReservationService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<OperatorReservationService>();
 
 // JWT Authentication
 var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];
