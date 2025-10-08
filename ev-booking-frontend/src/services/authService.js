@@ -87,6 +87,19 @@ export const authService = {
     }
   },
 
+  // Fetch stations assigned to the logged-in operator
+  async getOperatorStations() {
+    try {
+      const response = await api.get('/operator/station');
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to load operator stations'
+      };
+    }
+  },
+
   // EV Owner Management
   async getEVOwners() {
     try {
@@ -266,6 +279,33 @@ export const authService = {
     }
   },
 
+  // Fetch bookings for stations assigned to the logged-in operator using backend aggregation
+  async getOperatorBookings() {
+    try {
+      const response = await api.get('/operator/bookings');
+      const payload = response.data || {};
+      const stations = payload.stations || [];
+      const bookings = payload.bookings || [];
+
+      const stationById = new Map(
+        stations.map(s => [String(s.id || s.Id || s._id), s])
+      );
+
+      const enriched = bookings.map(b => {
+        const sid = String(b.stationId || b.StationId || b.stationID || b.station);
+        const station = stationById.get(sid);
+        return { ...b, station };
+      });
+
+      return { success: true, data: enriched };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to load operator bookings'
+      };
+    }
+  },
+
   async createBooking(bookingData) {
     try {
       // Transform frontend data to match backend API
@@ -356,6 +396,19 @@ async completeBooking(id) {
     }
   },
 
+  // Operator self-signup (no admin required)
+  async registerOperator(email, password) {
+    try {
+      const response = await api.post('/auth/register/operator', { email, password });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Registration failed'
+      };
+    }
+  },
+
   // Logout user
   logout() {
     localStorage.removeItem('authToken');
@@ -375,6 +428,26 @@ async completeBooking(id) {
   // Get auth token
   getToken() {
     return localStorage.getItem('authToken');
+  },
+
+  // Admin: create user with role (requires Backoffice token)
+  async createUserWithRole(email, password, role) {
+    try {
+      const response = await api.post('/auth/register', { email, password, role });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.message || 'Failed to create user' };
+    }
+  },
+
+  // Admin: list operators
+  async listOperators() {
+    try {
+      const response = await api.get('/users/operators');
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.message || 'Failed to fetch operators' };
+    }
   }
 };
 

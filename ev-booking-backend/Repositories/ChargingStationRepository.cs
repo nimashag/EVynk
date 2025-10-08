@@ -65,6 +65,13 @@ namespace EVynk.Booking.Api.Repositories
             var result = await _stations.DeleteOneAsync(s => s.Id == id);
             return result.DeletedCount > 0;
         }
+        
+public async Task<List<ChargingStation>> GetByOperatorIdAsync(string operatorId)
+{
+    var filter = Builders<ChargingStation>.Filter.AnyEq(s => s.OperatorIds, operatorId);
+    return await _stations.Find(filter).ToListAsync();
+}
+
 
     }
 }

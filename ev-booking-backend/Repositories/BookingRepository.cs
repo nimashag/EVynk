@@ -1,6 +1,7 @@
 using EVynk.Booking.Api.Models;
 using EVynk.Booking.Api.Persistence;
 using MongoDB.Driver;
+using MongoDB.Bson;
 using BookingModel = EVynk.Booking.Api.Models.Booking;
 
 // ==============================================
@@ -35,6 +36,32 @@ namespace EVynk.Booking.Api.Repositories
             // Inline comment at the beginning of method: retrieve all bookings
             return await _bookings.Find(Builders<BookingModel>.Filter.Empty).ToListAsync();
         }
+
+        public async Task<List<BookingModel>> GetByStationIdsAsync(List<string> stationIds)
+{
+    if (stationIds == null || stationIds.Count == 0)
+        return new List<BookingModel>();
+
+    // Convert valid string IDs to ObjectIds
+    var objectIds = new List<ObjectId>();
+    foreach (var id in stationIds)
+    {
+        if (ObjectId.TryParse(id, out var objId))
+            objectIds.Add(objId);
+    }
+
+    // Match both string and ObjectId stationId values
+    var filter = Builders<BookingModel>.Filter.Or(
+        Builders<BookingModel>.Filter.In("stationId", stationIds),
+        Builders<BookingModel>.Filter.In("stationId", objectIds)
+    );
+
+    var results = await _bookings.Find(filter).ToListAsync();
+    
+    return results;
+}
+
+
 
         public async Task<bool> UpdateAsync(string id, BookingModel booking)
         {
@@ -76,6 +103,7 @@ namespace EVynk.Booking.Api.Repositories
             var count = await _bookings.CountDocumentsAsync(filter);
             return count > 0;
         }
+        
     }
 }
 

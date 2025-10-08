@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import authService from '../../services/authService'; // Added import for authService
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -42,7 +43,14 @@ const RegisterForm = () => {
 
     setLoading(true);
 
-    const result = await register(formData.email, formData.password, formData.role);
+    let result;
+    if (formData.role === 'StationOperator') {
+      // self-signup path
+      result = await authService.registerOperator(formData.email, formData.password);
+    } else {
+      // backoffice requires admin token
+      result = await register(formData.email, formData.password, formData.role);
+    }
     
     if (result.success) {
       setSuccess('Registration successful! You can now sign in.');

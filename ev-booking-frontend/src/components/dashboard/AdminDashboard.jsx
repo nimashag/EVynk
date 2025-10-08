@@ -4,6 +4,8 @@ import { authService } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../common/Navigation';
 import StationsMap from '../common/StationsMap';
+import { useState as useLocalState } from 'react';
+import RoleManagement from '../management/RoleManagement';
 
 const AdminDashboard = () => {
   const { user, logout, loading: authLoading } = useAuth();
@@ -286,6 +288,12 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Role Management */}
+          <div className="mt-8 bg-white overflow-hidden shadow rounded-lg p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Role Management</h3>
+            <RoleManagement />
           </div>
         </div>
       </main>

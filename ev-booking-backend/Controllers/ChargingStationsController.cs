@@ -122,6 +122,19 @@ namespace EVynk.Booking.Api.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
+
+       [HttpGet("station")]
+public async Task<IActionResult> GetAssignedStations()
+{
+    var operatorId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(operatorId))
+        return Unauthorized();
+
+    var stations = await _service.GetStationsByOperatorIdAsync(operatorId);
+    return Ok(stations);
+}
+
+
     }
 }
 

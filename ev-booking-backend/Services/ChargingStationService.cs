@@ -92,6 +92,12 @@ namespace EVynk.Booking.Api.Services
             if (hasActive) throw new InvalidOperationException("Cannot delete station with active bookings");
             return await _repository.DeleteAsync(id);
         }
+
+        // In ChargingStationService.cs
+public async Task<List<ChargingStation>> GetStationsByOperatorIdAsync(string operatorId)
+{
+    return await _repository.GetByOperatorIdAsync(operatorId);
+}
     }
 }
 
