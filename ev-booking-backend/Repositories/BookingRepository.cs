@@ -32,7 +32,7 @@ namespace EVynk.Booking.Api.Repositories
 
         public async Task<IEnumerable<BookingModel>> GetAllAsync()
         {
-        // Inline comment at the beginning of method: retrieve all bookings (never null)
+            // Inline comment at the beginning of method: retrieve all bookings (never null)
             return await _bookings
                 .Find(Builders<BookingModel>.Filter.Empty)
                 .ToListAsync();
@@ -42,7 +42,11 @@ namespace EVynk.Booking.Api.Repositories
         {
             // Inline comment at the beginning of method: replace booking document by id
             booking.Id = id;
-            var result = await _bookings.ReplaceOneAsync(b => b.Id == id, booking, new ReplaceOptions { IsUpsert = false });
+            var result = await _bookings.ReplaceOneAsync(
+                b => b.Id == id,
+                booking,
+                new ReplaceOptions { IsUpsert = false }
+            );
             return result.ModifiedCount > 0;
         }
 
@@ -80,5 +84,3 @@ namespace EVynk.Booking.Api.Repositories
         }
     }
 }
-
-

@@ -5,6 +5,9 @@ using EVynk.Booking.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using System.Text.Json;
+using QRCoder;
+
 // ==============================================
 //  Project: EVynk Booking Backend (API)
 //  File: OwnerReservationsController.cs
@@ -168,6 +171,60 @@ namespace EVynk.Booking.Api.Controllers
             {
                 return Conflict(new { message = ex.Message });
             }
+        }
+
+        // GET /api/owner/reservations/{id}/qr
+        [HttpGet("{id}/qr")]
+        public async Task<IActionResult> Qr([FromRoute] string id)
+        {
+            var nic = await CurrentOwnerNicAsync();
+            if (string.IsNullOrWhiteSpace(nic))
+                return Unauthorized(new { message = "Owner identity not resolved from token." });
+
+            var data = await _service.GetByIdForOwnerAsync(id, nic);
+            if (data is null) return NotFound(new { message = "Reservation not found." });
+
+            if (!string.Equals(data.Status, BookingStatus.Active.ToString(), StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "QR is available only after approval (status = Active)." });
+
+            return Ok(new
+            {
+                message = "QR payload generated",
+                data = new BookingQrDto(data.Id, data.OwnerNic, data.StationId, data.ReservationAtUtc, data.Status)
+            });
+        }
+
+        // GET /api/owner/reservations/{id}/qr-image
+        [HttpGet("{id}/qr-image")]
+        public async Task<IActionResult> QrImage([FromRoute] string id)
+        {
+            var nic = await CurrentOwnerNicAsync();
+            if (string.IsNullOrWhiteSpace(nic))
+                return Unauthorized(new { message = "Owner identity not resolved from token." });
+
+            var data = await _service.GetByIdForOwnerAsync(id, nic);
+            if (data is null) return NotFound(new { message = "Reservation not found." });
+
+            if (!string.Equals(data.Status, BookingStatus.Active.ToString(), StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "QR is available only after approval (status = Active)." });
+
+            // Keep payload compact; include only what operator needs to verify
+            var payload = JsonSerializer.Serialize(new
+            {
+                id = data.Id,
+                ownerNic = data.OwnerNic,
+                stationId = data.StationId,
+                at = data.ReservationAtUtc.ToString("O") // ISO 8601
+            });
+
+            // Generate PNG bytes
+            using var generator = new QRCodeGenerator();
+            using var qrData = generator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.M);
+            var pngQr = new PngByteQRCode(qrData);
+            byte[] pngBytes = pngQr.GetGraphic(pixelsPerModule: 6); // adjust size (4–12) if you want
+
+            Response.Headers.CacheControl = "no-store";
+            return File(pngBytes, "image/png");
         }
     }
 }
