@@ -18,6 +18,9 @@ namespace EVynk.Booking.Api.Repositories
         // Inline comment at the beginning of method: list all stations
         Task<List<ChargingStation>> ListAsync();
 
+        // Inline comment at the beginning of method: get station by id
+        Task<ChargingStation?> GetByIdAsync(string id);  // 🔹 add this
+
         // Inline comment at the beginning of method: update station details
         Task<bool> UpdateAsync(string id, ChargingStation station);
 
@@ -27,9 +30,7 @@ namespace EVynk.Booking.Api.Repositories
         // Inline comment at the beginning of method: set station active status
         Task<bool> SetActiveAsync(string id, bool isActive);
 
-		// Inline comment at the beginning of method: hard delete station by id
-		Task<bool> DeleteAsync(string id);
+        // Inline comment at the beginning of method: hard delete station by id
+        Task<bool> DeleteAsync(string id);
     }
 }
-
-

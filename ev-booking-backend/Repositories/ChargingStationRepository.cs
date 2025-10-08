@@ -29,6 +29,12 @@ namespace EVynk.Booking.Api.Repositories
             return station;
         }
 
+        public async Task<ChargingStation?> GetByIdAsync(string id)
+        {
+            // Inline comment at the beginning of method: fetch a single station by ObjectId string
+            return await _stations.Find(s => s.Id == id).FirstOrDefaultAsync();
+        }
+
         public async Task<List<ChargingStation>> ListAsync()
         {
             // Inline comment at the beginning of method: list all stations

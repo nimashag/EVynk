@@ -61,8 +61,13 @@ namespace EVynk.Booking.Api.Services
             if (string.IsNullOrWhiteSpace(nic)) throw new ArgumentException("NIC is required");
             return await _repository.SetActiveAsync(nic, false);
         }
-        public Task<Owner?> FindByEmailAsync(string email) => _repository.FindByEmailAsync(email);
+
+        // Used by OwnerSelfController and token->owner resolution
+        public Task<Owner?> FindByEmailAsync(string email)
+            => _repository.FindByEmailAsync(email);
+
+        // 🔹 Needed by OwnerReservationService to validate owner + IsActive
+        public Task<Owner?> GetByNicAsync(string nic)
+            => _repository.GetByNicAsync(nic);
     }
 }
-
-
