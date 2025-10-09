@@ -1,0 +1,72 @@
+{
+  "info": {
+    "name": "EVynk Mobile - Station Operator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "c3d2c6d2-1a5a-4f7a-a1f0-evynk-mobile-stations"
+  },
+  "item": [
+    {
+      "name": "My Stations",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/mobile/station/my-stations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","mobile","station","my-stations"]
+        }
+      }
+    },
+    {
+      "name": "Operator Simple (ChargingStationsController)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/chargingstations/operator/simple",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","chargingstations","operator","simple"]
+        }
+      }
+    },
+    {
+      "name": "Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/mobile/station/dashboard",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","mobile","station","dashboard"]
+        }
+      }
+    },
+    {
+      "name": "Station By Id",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/mobile/station/{{stationId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","mobile","station","{{stationId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "stationId", "value": "" }
+  ]
+}
+
+
