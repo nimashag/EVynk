@@ -31,17 +31,23 @@ namespace EVynk.Booking.Api.Controllers
         public async Task<IActionResult> List()
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId   = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var stations = await _service.ListAsync();
 
             if (userRole == UserRole.StationOperator.ToString())
             {
-                stations = stations.Where(s => s.OperatorIds.Contains(userId)).ToList();
+                if (string.IsNullOrWhiteSpace(userId))
+                    return Unauthorized(new { message = "User id claim missing." });
+
+                stations = stations
+                    .Where(s => s.OperatorIds != null && s.OperatorIds.Contains(userId))
+                    .ToList();
             }
 
             return Ok(new { message = "Charging stations fetched successfully", data = stations });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ChargingStation station)

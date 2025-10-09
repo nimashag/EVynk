@@ -47,6 +47,13 @@ namespace EVynk.Booking.Api.Services
             return await _repository.CreateAsync(station);
         }
 
+        public async Task<ChargingStation?> GetByIdAsync(string id)
+        {
+            // Inline comment at the beginning of method: read-through to repository
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id is required");
+            return await _repository.GetByIdAsync(id);
+        }
+
         public async Task<List<ChargingStation>> ListAsync()
         {
             // Inline comment at the beginning of method: return all stations

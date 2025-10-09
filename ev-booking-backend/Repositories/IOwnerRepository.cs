@@ -29,6 +29,9 @@ namespace EVynk.Booking.Api.Repositories
 
         // Inline comment at the beginning of method: set active status for owner by NIC
         Task<bool> SetActiveAsync(string nic, bool isActive);
+
+        
+        Task<Owner?> FindByEmailAsync(string email);
     }
 }
 

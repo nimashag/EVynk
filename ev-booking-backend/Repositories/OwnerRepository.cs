@@ -63,6 +63,10 @@ namespace EVynk.Booking.Api.Repositories
             var result = await _owners.UpdateOneAsync(o => o.Nic == nic, update);
             return result.ModifiedCount > 0;
         }
+
+         // Inline comment at the beginning of method: find owner by email
+        public async Task<Owner?> FindByEmailAsync(string email) =>
+            await _owners.Find(o => o.Email == email).FirstOrDefaultAsync();
     }
 }
 
