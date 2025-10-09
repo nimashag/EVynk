@@ -49,7 +49,7 @@ const RoleManagement = () => {
         res = await authService.register(name, email, phoneNumber, password, roleName);
       } else {
         // Station Operator self-creates operators via open endpoint
-        res = await authService.registerOperator(email, password);
+        res = await authService.registerOperator(name, email, phoneNumber, password);
       }
 
       if (res.success) {

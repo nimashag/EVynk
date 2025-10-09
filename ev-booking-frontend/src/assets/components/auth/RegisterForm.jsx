@@ -93,10 +93,10 @@ const RegisterForm = () => {
     let result;
     if (formData.role === 'StationOperator') {
       // self-signup path
-      result = await authService.registerOperator(formData.email, formData.password);
+      result = await authService.registerOperator(formData.name, formData.email, formData.phoneNumber, formData.password);
     } else {
       // backoffice requires admin token
-      result = await register(formData.email, formData.password, formData.role);
+      result = await register(formData.name, formData.email, formData.phoneNumber, formData.password, formData.role);
     }
     
     if (result.success) {

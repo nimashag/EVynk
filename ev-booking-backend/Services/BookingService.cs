@@ -18,13 +18,13 @@ namespace EVynk.Booking.Api.Services
 
         public BookingService(IBookingRepository repository)
         {
-            // Inline comment at the beginning of method: capture repository dependency
+            //  : capture repository dependency
             _repository = repository;
         }
 
         public async Task<IEnumerable<BookingModel>> GetAllAsync()
         {
-            // Inline comment at the beginning of method: retrieve all bookings from repository
+            //  : retrieve all bookings from repository
             return await _repository.GetAllAsync();
         }
 
@@ -36,7 +36,7 @@ namespace EVynk.Booking.Api.Services
 
         public async Task<BookingModel> CreateAsync(string stationId, string ownerNic, DateTime reservationAtLocal)
         {
-            // Inline comment at the beginning of method: validate 7-day window and create booking
+            //  : validate 7-day window and create booking
             var nowUtc = DateTime.UtcNow;
             var reservationUtc = reservationAtLocal.ToUniversalTime();
 
@@ -60,7 +60,7 @@ namespace EVynk.Booking.Api.Services
 
         public async Task<bool> UpdateAsync(string id, string stationId, string ownerNic, DateTime reservationAtLocal)
         {
-            // Inline comment at the beginning of method: validate 12-hour window and update booking
+            //  : validate 12-hour window and update booking
             var booking = await _repository.GetByIdAsync(id);
             if (booking == null) return false;
 
@@ -86,7 +86,7 @@ namespace EVynk.Booking.Api.Services
 
         public async Task<bool> CancelAsync(string id)
         {
-            // Inline comment at the beginning of method: validate 12-hour window and cancel booking
+            //  : validate 12-hour window and cancel booking
             var booking = await _repository.GetByIdAsync(id);
             if (booking == null) return false;
 
@@ -101,7 +101,7 @@ namespace EVynk.Booking.Api.Services
 
         public async Task<bool> ActivateAsync(string id)
         {
-            // Inline comment at the beginning of method: change status from Pending to Active
+            //  : change status from Pending to Active
             var booking = await _repository.GetByIdAsync(id);
             if (booking == null) return false;
 
@@ -113,7 +113,7 @@ namespace EVynk.Booking.Api.Services
 
         public async Task<bool> CompleteAsync(string id)
         {
-            // Inline comment at the beginning of method: change status from Active to Completed
+            //  : change status from Active to Completed
             var booking = await _repository.GetByIdAsync(id);
             if (booking == null) return false;
 

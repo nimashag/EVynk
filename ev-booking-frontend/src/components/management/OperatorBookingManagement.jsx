@@ -290,10 +290,17 @@ const OperatorBookingManagement = () => {
     setError("");
 
     try {
-      const result = await authService.updateBookingStatus(
-        selectedBooking.id || selectedBooking._id,
-        newStatus
-      );
+      let result;
+      const bookingId = selectedBooking.id || selectedBooking._id;
+
+      // Use dedicated endpoint for activation, generic for others
+      if (newStatus === "Active") {
+        result = await authService.activateBooking(bookingId);
+      } else if (newStatus === "Completed") {
+        result = await authService.completeBooking(bookingId);
+      } else {
+        result = await authService.updateBookingStatus(bookingId, newStatus);
+      }
 
       if (result.success) {
         showToast(`Booking status updated to ${newStatus}!`, "success");
@@ -304,7 +311,7 @@ const OperatorBookingManagement = () => {
         showToast(result.error || "Failed to update status", "error");
       }
     } catch (err) {
-      showToast("Failed to update status", "error");
+      showToast(err.message || "Failed to update status", "error");
     } finally {
       setProcessing(false);
     }
@@ -492,13 +499,13 @@ const OperatorBookingManagement = () => {
                 <>
                   {canModify && (
                     <>
-                      <button
+                      {/* <button
                         onClick={() => openEditModal(booking)}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition text-sm"
                       >
                         <Edit2 size={16} />
                         <span>Edit</span>
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => handleCancelBooking(booking)}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-medium bg-red-50 text-red-600 hover:bg-red-100 transition text-sm"

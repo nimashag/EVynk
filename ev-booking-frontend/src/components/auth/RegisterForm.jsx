@@ -7,19 +7,25 @@ import authService from '../../services/authService';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
     role: 'StationOperator'
   });
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ 
+    name: '',
     email: '', 
+    phoneNumber: '',
     password: '', 
     confirmPassword: '' 
   });
   const [touched, setTouched] = useState({ 
+    name: false,
     email: false, 
+    phoneNumber: false,
     password: false, 
     confirmPassword: false 
   });
@@ -31,6 +37,14 @@ const RegisterForm = () => {
   const navigate = useNavigate();
 
   const validate = (name, value) => {
+    if (name === 'name') {
+      const isValid = value.trim().length >= 2;
+      return isValid ? '' : 'Name must be at least 2 characters';
+    }
+    if (name === 'phoneNumber') {
+      const isValid = /^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''));
+      return isValid ? '' : 'Enter a valid phone number';
+    }
     if (name === 'email') {
       const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       return isValid ? '' : 'Enter a valid email address';
@@ -72,19 +86,23 @@ const RegisterForm = () => {
     setError('');
 
     // Final validation before submit
+    const nameError = validate('name', formData.name);
+    const phoneNumberError = validate('phoneNumber', formData.phoneNumber);
     const emailError = validate('email', formData.email);
     const passwordError = validate('password', formData.password);
     const confirmPasswordError = validate('confirmPassword', formData.confirmPassword);
     
     setFieldErrors({ 
+      name: nameError,
+      phoneNumber: phoneNumberError,
       email: emailError, 
       password: passwordError, 
       confirmPassword: confirmPasswordError 
     });
-    setTouched({ email: true, password: true, confirmPassword: true });
+    setTouched({ name: true, phoneNumber: true, email: true, password: true, confirmPassword: true });
 
-    if (emailError || passwordError || confirmPasswordError) {
-      toast.error('Invalid email address or password');
+    if (nameError || phoneNumberError || emailError || passwordError || confirmPasswordError) {
+      toast.error('Please fill in all required fields correctly');
       return;
     }
 
@@ -93,23 +111,25 @@ const RegisterForm = () => {
     let result;
     if (formData.role === 'StationOperator') {
       // self-signup path
-      result = await authService.registerOperator(formData.email, formData.password);
+      result = await authService.registerOperator(formData.name, formData.email, formData.phoneNumber, formData.password);
     } else {
       // backoffice requires admin token
-      result = await register(formData.email, formData.password, formData.role);
+      result = await register(formData.name, formData.email, formData.phoneNumber, formData.password, formData.role);
     }
     
     if (result.success) {
       toast.success('Registration successful! You can now sign in.');
       // Clear form
       setFormData({
+        name: '',
         email: '',
+        phoneNumber: '',
         password: '',
         confirmPassword: '',
         role: 'StationOperator'
       });
-      setTouched({ email: false, password: false, confirmPassword: false });
-      setFieldErrors({ email: '', password: '', confirmPassword: '' });
+      setTouched({ name: false, phoneNumber: false, email: false, password: false, confirmPassword: false });
+      setFieldErrors({ name: '', phoneNumber: '', email: '', password: '', confirmPassword: '' });
       
       // Redirect to login after 2 seconds
       setTimeout(() => {
@@ -161,6 +181,31 @@ const RegisterForm = () => {
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 shadow-xl">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-white/90 mb-2">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-white/60">
+                      <User size={18} />
+                    </div>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      className="w-full pl-10 pr-3 py-3 rounded-lg border border-white/10 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-lime-500/70 focus:border-transparent transition"
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  {touched.name && fieldErrors.name && (
+                    <p className="mt-2 text-xs text-lime-300/90">{fieldErrors.name}</p>
+                  )}
+                </div>
+
+                <div>
                   <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
                     Email Address
                   </label>
@@ -182,6 +227,33 @@ const RegisterForm = () => {
                   </div>
                   {touched.email && fieldErrors.email && (
                     <p className="mt-2 text-xs text-lime-300/90">{fieldErrors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="phoneNumber" className="block text-sm font-medium text-white/90 mb-2">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-white/60">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                    </div>
+                    <input
+                      type="tel"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      className="w-full pl-10 pr-3 py-3 rounded-lg border border-white/10 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-lime-500/70 focus:border-transparent transition"
+                      placeholder="+1234567890"
+                    />
+                  </div>
+                  {touched.phoneNumber && fieldErrors.phoneNumber && (
+                    <p className="mt-2 text-xs text-lime-300/90">{fieldErrors.phoneNumber}</p>
                   )}
                 </div>
 
