@@ -267,6 +267,59 @@ namespace EVynk.Booking.Api.Controllers
             }
         }
 
+        // ==============================================
+        //  NEW: Reservation history (Completed + Cancelled)
+        //  GET /api/station-data/reservation-history
+        // ==============================================
+        [HttpGet("reservation-history")]
+        public async Task<IActionResult> GetReservationHistory()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+                if (string.IsNullOrWhiteSpace(userId))
+                    return Unauthorized(new { message = "User ID claim missing." });
+
+                // Stations owned by this operator
+                var allStations = await _service.ListAsync();
+                var myStationIds = allStations
+                    .Where(s => s.OperatorIds != null && s.OperatorIds.Contains(userId))
+                    .Select(s => s.Id)
+                    .ToList();
+
+                if (!myStationIds.Any())
+                    return Ok(new { message = "No stations found for this operator", data = new List<object>(), count = 0 });
+
+                // All bookings → filter Completed + Cancelled from my stations
+                var allBookings = await _bookingService.GetAllAsync();
+                var history = allBookings
+                    .Where(b => myStationIds.Contains(b.StationId) &&
+                                (b.Status == BookingStatus.Completed || b.Status == BookingStatus.Cancelled))
+                    .Select(b => new
+                    {
+                        _id = b.Id,
+                        stationId = b.StationId,
+                        ownerNic = b.OwnerNic,
+                        reservationAtUtc = b.ReservationAtUtc,
+                        createdAtUtc = b.CreatedAtUtc,
+                        status = b.Status.ToString()
+                    })
+                    .OrderByDescending(b => b.reservationAtUtc)
+                    .ToList();
+
+                return Ok(new
+                {
+                    message = "Reservation history fetched successfully",
+                    data = history,
+                    count = history.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while fetching reservation history", error = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Update booking status (Cancelled or Completed) for bookings in operator's stations
         /// </summary>
@@ -327,4 +380,5 @@ namespace EVynk.Booking.Api.Controllers
         public record UpdateSlotsOnlyRequest(int AvailableSlots);
         public record UpdateBookingStatusRequest(BookingStatus Status);
     }
+    
 }

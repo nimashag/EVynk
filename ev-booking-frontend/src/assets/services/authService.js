@@ -456,13 +456,15 @@ export const authService = {
   },
 
   // Register user (only for backoffice users)
-  async register(email, password, role) {
+  async register(name, email, phoneNumber, password, role) {
     try {
       // Convert role string to numeric enum value
       const roleValue = role === "Backoffice" ? 1 : 2; // 1=Backoffice, 2=StationOperator
 
       const response = await api.post("/auth/register", {
+        name,
         email,
+        phoneNumber,
         password,
         role: roleValue,
       });
@@ -476,10 +478,12 @@ export const authService = {
   },
 
   // Operator self-signup (no admin required)
-  async registerOperator(email, password) {
+  async registerOperator(name, email, phoneNumber, password) {
     try {
       const response = await api.post("/auth/register/operator", {
+        name,
         email,
+        phoneNumber,
         password,
       });
       return { success: true, data: response.data };

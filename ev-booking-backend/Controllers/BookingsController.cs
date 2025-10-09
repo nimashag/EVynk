@@ -21,7 +21,7 @@ namespace EVynk.Booking.Api.Controllers
 
         public BookingsController(BookingService service)
         {
-            // Inline comment at the beginning of method: capture booking service
+            // capture booking service
             _service = service;
         }
 
@@ -30,7 +30,7 @@ namespace EVynk.Booking.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBookingRequest request)
         {
-            // Inline comment at the beginning of method: create booking enforcing 7-day policy
+            // create booking enforcing 7-day policy
             try
             {
                 var created = await _service.CreateAsync(request.StationId, request.OwnerNic, request.ReservationAt);
@@ -53,7 +53,7 @@ namespace EVynk.Booking.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Inline comment at the beginning of method: retrieve all bookings
+            // retrieve all bookings
             try
             {
                 var bookings = await _service.GetAllAsync();
@@ -73,7 +73,7 @@ namespace EVynk.Booking.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreateBookingRequest request)
         {
-            // Inline comment at the beginning of method: update booking with 12-hour validation
+            // update booking with 12-hour validation
             try
             {
                 var updated = await _service.UpdateAsync(id, request.StationId, request.OwnerNic, request.ReservationAt);
@@ -101,7 +101,7 @@ namespace EVynk.Booking.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Cancel([FromRoute] string id)
         {
-            // Inline comment at the beginning of method: cancel booking with 12-hour validation
+            // cancel booking with 12-hour validation
             try
             {
                 var cancelled = await _service.CancelAsync(id);
@@ -117,7 +117,7 @@ namespace EVynk.Booking.Api.Controllers
         [HttpPatch("{id}/activate")]
         public async Task<IActionResult> Activate([FromRoute] string id)
         {
-            // Inline comment at the beginning of method: activate booking (Pending -> Active)
+            // activate booking (Pending -> Active)
             try
             {
                 var activated = await _service.ActivateAsync(id);
@@ -133,7 +133,7 @@ namespace EVynk.Booking.Api.Controllers
         [HttpPatch("{id}/complete")]
         public async Task<IActionResult> Complete([FromRoute] string id)
         {
-            // Inline comment at the beginning of method: complete booking (Active -> Completed)
+            // complete booking (Active -> Completed)
             try
             {
                 var completed = await _service.CompleteAsync(id);

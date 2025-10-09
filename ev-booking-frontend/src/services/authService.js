@@ -433,7 +433,7 @@ export const authService = {
   // Booking Management - Status Updates
   async activateBooking(id) {
     try {
-      const response = await api.patch(`/bookings/${id}/activate`);
+      const response = await api.patch(`/station-data/booking/${id}/activate`);
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -478,10 +478,12 @@ export const authService = {
   },
 
   // Operator self-signup (no admin required)
-  async registerOperator(email, password) {
+  async registerOperator(name, email, phoneNumber, password) {
     try {
       const response = await api.post("/auth/register/operator", {
+        name,
         email,
+        phoneNumber,
         password,
       });
       return { success: true, data: response.data };

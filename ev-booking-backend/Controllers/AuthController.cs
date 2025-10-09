@@ -54,16 +54,16 @@ namespace EVynk.Booking.Api.Controllers
             }
         }
 
+        public record RegisterOperatorRequest(string Name, string Email, string PhoneNumber, string Password);
+
         // Allow Station Operators to self-register without admin privileges
         [HttpPost("register/operator")]
         [AllowAnonymous]
-        public async Task<IActionResult> RegisterOperator([FromBody] LoginRequest request)
+        public async Task<IActionResult> RegisterOperator([FromBody] RegisterOperatorRequest request)
         {
             // Inline comment at the beginning of method: self-service signup defaults to StationOperator role
-            var user = await _authService.RegisterAsync(request.Email, request.Password, UserRole.StationOperator);
-            return Created($"api/users/{user.Id}", new { user.Id, user.Email, Role = user.Role });
-            // var user = await _authService.RegisterAsync(request.Email, request.Password, request.Role);
-            // return Created($"api/users/{user.Id}", new { user.Id, user.Email, user.Role });
+            var user = await _authService.RegisterAsync(request.Email, request.Password, UserRole.StationOperator, request.Name, request.PhoneNumber);
+            return Created($"api/users/{user.Id}", new { user.Id, user.Name, user.Email, user.PhoneNumber, Role = user.Role });
         }
 
         // Generic login (keep as-is)
