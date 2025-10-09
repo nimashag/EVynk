@@ -10,12 +10,15 @@ import ChargingStationManagement from './components/management/ChargingStationMa
 import BookingManagement from './components/management/BookingManagement';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="App">
+          <ToastContainer position="top-right" theme="dark" closeOnClick pauseOnHover />
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<LoginForm />} />

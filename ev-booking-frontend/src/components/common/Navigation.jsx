@@ -1,5 +1,6 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { LogOut, LayoutDashboard, Users, MapPin, Calendar } from 'lucide-react';
 
 const Navigation = () => {
   const { user, logout } = useAuth();
@@ -18,56 +19,62 @@ const Navigation = () => {
   if (!user) return null;
 
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="bg-gradient-to-r from-teal-900 to-teal-800 shadow-lg border-b border-teal-700/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-xl font-bold text-gray-900">
-                🚗 EV Booking System
-              </h1>
+            <img 
+                src="../images/logo.png" 
+                alt="EVynk Logo" 
+                className="h-10 w-auto"
+              />
             </div>
-            <div className="ml-10 flex items-baseline space-x-4">
+            <div className="ml-10 flex items-baseline space-x-2">
               {user.role === 'Backoffice' && (
                 <>
                   <button
                     onClick={() => navigate('/admin/dashboard')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                       isActive('/admin/dashboard')
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        ? 'bg-lime-500 text-teal-900 shadow-lg shadow-lime-500/30'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
+                    <LayoutDashboard size={16} />
                     Dashboard
                   </button>
                   <button
                     onClick={() => navigate('/admin/ev-owners')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                       isActive('/admin/ev-owners')
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        ? 'bg-lime-500 text-teal-900 shadow-lg shadow-lime-500/30'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
+                    <Users size={16} />
                     EV Owners
                   </button>
                   <button
                     onClick={() => navigate('/admin/charging-stations')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                       isActive('/admin/charging-stations')
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        ? 'bg-lime-500 text-teal-900 shadow-lg shadow-lime-500/30'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
+                    <MapPin size={16} />
                     Stations
                   </button>
                   <button
                     onClick={() => navigate('/admin/bookings')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                       isActive('/admin/bookings')
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        ? 'bg-lime-500 text-teal-900 shadow-lg shadow-lime-500/30'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
+                    <Calendar size={16} />
                     Bookings
                   </button>
                 </>
@@ -75,25 +82,27 @@ const Navigation = () => {
               {user.role === 'StationOperator' && (
                 <button
                   onClick={() => navigate('/operator/panel')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                     isActive('/operator/panel')
-                      ? 'bg-green-100 text-green-700'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                      ? 'bg-lime-500 text-teal-900 shadow-lg shadow-lime-500/30'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
+                  <LayoutDashboard size={16} />
                   Operator Panel
                 </button>
               )}
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
-              Welcome, {user.role}
+            <span className="text-sm text-white/70 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+              Welcome, <span className="text-lime-300 font-medium">{user.role}</span>
             </span>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+              className="bg-red-500/90 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-red-500/30"
             >
+              <LogOut size={16} />
               Logout
             </button>
           </div>
@@ -104,4 +113,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-

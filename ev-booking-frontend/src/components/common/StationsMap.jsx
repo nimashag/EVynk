@@ -1,6 +1,7 @@
 // StationsMap.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useGoogleMaps } from '../../hooks/useGoogleMaps';
+import { MapPin, Zap, Loader, AlertCircle, RefreshCw } from 'lucide-react';
 
 const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
   const mapRef = useRef(null);
@@ -32,6 +33,18 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
     gestureHandling: 'greedy',
     minZoom: 6,
     maxZoom: 18,
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
+      },
+      {
+        featureType: 'transit',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
+      }
+    ]
   };
 
   // Initialize map
@@ -63,35 +76,49 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
           },
           map,
           title: station.location,
+          animation: window.google.maps.Animation.DROP,
           icon: {
             url: station.isActive 
               ? 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="16" cy="16" r="14" fill="#10B981" stroke="white" stroke-width="2"/>
-                  <text x="16" y="21" text-anchor="middle" fill="white" font-size="14" font-weight="bold">⚡</text>
+                <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="18" cy="18" r="16" fill="#84cc16" stroke="white" stroke-width="3"/>
+                  <text x="18" y="24" text-anchor="middle" fill="white" font-size="16" font-weight="bold">⚡</text>
                 </svg>
               `)
               : 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="16" cy="16" r="14" fill="#EF4444" stroke="white" stroke-width="2"/>
-                  <text x="16" y="21" text-anchor="middle" fill="white" font-size="14" font-weight="bold">⚡</text>
+                <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="18" cy="18" r="16" fill="#ef4444" stroke="white" stroke-width="3"/>
+                  <text x="18" y="24" text-anchor="middle" fill="white" font-size="16" font-weight="bold">⚡</text>
                 </svg>
               `),
-            scaledSize: new window.google.maps.Size(32, 32),
-            anchor: new window.google.maps.Point(16, 16)
+            scaledSize: new window.google.maps.Size(36, 36),
+            anchor: new window.google.maps.Point(18, 18)
           }
         });
 
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
-            <div class="p-3 max-w-xs">
-              <h3 class="font-semibold text-gray-900 text-base mb-2">${station.location}</h3>
-              <div class="space-y-1 text-sm">
-                <p class="text-gray-600"><span class="font-medium">Type:</span> ${station.type || 'N/A'}</p>
-                <p class="text-gray-600"><span class="font-medium">Available Slots:</span> ${station.availableSlots || 0}</p>
-                <p class="${station.isActive ? 'text-green-600' : 'text-red-600'} font-medium">
-                  ${station.isActive ? '🟢 Active' : '🔴 Inactive'}
-                </p>
+            <div class="p-4 max-w-xs">
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-10 h-10 ${station.isActive ? 'bg-lime-500' : 'bg-red-500'} rounded-full flex items-center justify-center flex-shrink-0">
+                  <span class="text-white text-lg">⚡</span>
+                </div>
+                <div>
+                  <h3 class="font-bold text-teal-900 text-base mb-1">${station.location}</h3>
+                  <span class="inline-block px-2 py-1 text-xs rounded-full ${station.isActive ? 'bg-lime-100 text-lime-700' : 'bg-red-100 text-red-700'} font-medium">
+                    ${station.isActive ? '● Active' : '● Inactive'}
+                  </span>
+                </div>
+              </div>
+              <div class="space-y-2 text-sm border-t border-gray-200 pt-3">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Type:</span>
+                  <span class="font-medium text-teal-800">${station.type || 'N/A'}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Available Slots:</span>
+                  <span class="font-bold text-lime-600">${station.availableSlots || 0}</span>
+                </div>
               </div>
             </div>
           `
@@ -153,12 +180,12 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
   if (!isLoaded) {
     return (
       <div 
-        className="bg-gray-200 animate-pulse rounded-lg flex items-center justify-center border border-gray-300"
+        className="bg-gradient-to-br from-teal-100 to-lime-100 animate-pulse rounded-xl flex items-center justify-center border-2 border-teal-200 shadow-lg"
         style={{ height }}
       >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-          <p className="text-gray-600">Loading map...</p>
+          <Loader className="animate-spin h-10 w-10 text-teal-600 mx-auto mb-3" />
+          <p className="text-teal-700 font-medium">Loading map...</p>
         </div>
       </div>
     );
@@ -168,16 +195,18 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
   if (loadError) {
     return (
       <div 
-        className="bg-red-100 rounded-lg flex items-center justify-center text-red-600 border border-red-300"
+        className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl flex items-center justify-center border-2 border-red-200 shadow-lg"
         style={{ height }}
       >
-        <div className="text-center">
-          <p className="font-medium">Error loading map</p>
-          <p className="text-sm mt-1">Please check your API key and try again</p>
+        <div className="text-center p-6">
+          <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-3" />
+          <p className="font-semibold text-red-800 text-lg mb-1">Error loading map</p>
+          <p className="text-sm text-red-600 mb-4">Please check your API key and try again</p>
           <button 
             onClick={() => window.location.reload()}
-            className="mt-3 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded text-sm transition-colors"
+            className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-lg text-sm transition-all duration-300 shadow-lg hover:shadow-red-500/30 font-medium"
           >
+            <RefreshCw className="w-4 h-4" />
             Retry
           </button>
         </div>
@@ -185,37 +214,65 @@ const StationsMap = ({ stations = [], height = '400px', onStationClick }) => {
     );
   }
 
+  const activeCount = stations.filter(s => s.isActive).length;
+  const inactiveCount = stations.filter(s => !s.isActive).length;
+
   return (
     <div className="w-full">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Charging Stations Map</h3>
-        <p className="text-sm text-gray-600">
-          {stations.length} station{stations.length !== 1 ? 's' : ''} found • 
-          <span className="text-green-600 ml-1">
-            {stations.filter(s => s.isActive).length} active
-          </span>
-          <span className="text-red-600 ml-2">
-            {stations.filter(s => !s.isActive).length} inactive
-          </span>
-        </p>
+      {/* Header Section */}
+      <div className="mb-4 bg-gradient-to-r from-teal-50 to-lime-50 border border-teal-200 rounded-xl p-4 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0">
+            <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center shadow-lg">
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-teal-900 mb-1">Charging Stations Map</h3>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              <span className="text-teal-700 font-medium">
+                {stations.length} station{stations.length !== 1 ? 's' : ''} found
+              </span>
+              <span className="inline-flex items-center gap-1.5 bg-lime-100 text-lime-700 px-3 py-1 rounded-full font-medium">
+                <Zap className="w-3.5 h-3.5" />
+                {activeCount} active
+              </span>
+              <span className="inline-flex items-center gap-1.5 bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium">
+                <AlertCircle className="w-3.5 h-3.5" />
+                {inactiveCount} inactive
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
       
-      <div ref={mapRef} className="w-full rounded-lg border border-gray-300" style={{ height }} />
+      {/* Map Container */}
+      <div className="relative rounded-xl overflow-hidden border-2 border-teal-200 shadow-xl">
+        <div ref={mapRef} className="w-full" style={{ height }} />
+      </div>
       
-      <div className="mt-4 flex items-center space-x-6 text-sm">
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-          <span>Active Stations</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-          <span>Inactive Stations</span>
-        </div>
-        {selectedStation && (
-          <div className="ml-auto text-blue-600 font-medium">
-            Selected: {selectedStation.location}
+      {/* Legend & Selected Station */}
+      <div className="mt-4 bg-white border border-teal-200 rounded-xl p-4 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-lime-500 rounded-full shadow-sm flex items-center justify-center">
+              <Zap className="w-3 h-3 text-white" />
+            </div>
+            <span className="text-teal-900 font-medium">Active Stations</span>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-red-500 rounded-full shadow-sm flex items-center justify-center">
+              <Zap className="w-3 h-3 text-white" />
+            </div>
+            <span className="text-teal-900 font-medium">Inactive Stations</span>
+          </div>
+          {selectedStation && (
+            <div className="ml-auto flex items-center gap-2 bg-lime-50 text-lime-700 px-3 py-1.5 rounded-lg border border-lime-200">
+              <MapPin className="w-4 h-4" />
+              <span className="font-semibold text-sm">Selected: {selectedStation.location}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

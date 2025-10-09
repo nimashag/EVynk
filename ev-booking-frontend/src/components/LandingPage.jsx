@@ -81,52 +81,86 @@ const LandingPage = () => {
 
       {/* Login Sidebar */}
       <div 
-        className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-gradient-to-b from-teal-900 to-teal-800 text-white shadow-2xl z-50 transform transition-transform duration-300 ${
           isLoginOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800">Login</h2>
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-500/30 flex items-center justify-center">
+                <User size={18} className="text-lime-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Welcome back</h2>
+                <p className="text-xs text-white/70">Choose how you want to sign in</p>
+              </div>
+            </div>
             <button 
               onClick={() => setIsLoginOpen(false)}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-white/70 hover:text-white transition"
+              aria-label="Close login panel"
             >
-              <X size={24} />
+              <X size={22} />
             </button>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-blue-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">Backoffice</h3>
-              <p className="text-blue-600 mb-4">Manage users, stations, and system settings</p>
+          <div className="mb-6">
+            <div className="h-1 w-16 bg-lime-500 rounded"></div>
+          </div>
+
+          <div className="space-y-5">
+            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 hover:bg-white/10 transition">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Backoffice</h3>
+                  <p className="text-sm text-white/70">Manage users, stations, and settings</p>
+                </div>
+                <span className="px-2 py-1 text-[10px] uppercase tracking-wide rounded bg-lime-500/20 text-lime-300 border border-lime-500/30">Admin</span>
+              </div>
               <Link
                 to="/login"
-                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 inline-block w-full text-center"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-lime-500 py-2.5 px-4 font-semibold text-teal-900 hover:bg-lime-400 active:bg-lime-500/90 transition shadow-lg shadow-lime-500/20"
               >
-                Admin Login
+                <User size={16} /> Admin Login
               </Link>
             </div>
 
-            <div className="bg-green-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-green-800 mb-2">Station Operator</h3>
-              <p className="text-green-600 mb-4">Monitor and manage charging stations</p>
+            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 hover:bg-white/10 transition">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Station Operator</h3>
+                  <p className="text-sm text-white/70">Monitor and control charging stations</p>
+                </div>
+                <span className="px-2 py-1 text-[10px] uppercase tracking-wide rounded bg-lime-500/20 text-lime-300 border border-lime-500/30">Operator</span>
+              </div>
               <Link
                 to="/login"
-                className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 inline-block w-full text-center"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-lime-500 py-2.5 px-4 font-semibold text-teal-900 hover:bg-lime-400 active:bg-lime-500/90 transition shadow-lg shadow-lime-500/20"
               >
-                Operator Login
+                <User size={16} /> Operator Login
               </Link>
             </div>
 
-            <div className="text-center pt-4">
-              <p className="text-gray-600 mb-4">Don't have an account?</p>
-              <Link
-                to="/register"
-                className="text-blue-500 hover:text-blue-600 font-medium"
-              >
-                Sign up here
-              </Link>
+            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-white/80">Don't have an account?</p>
+                  <p className="text-xs text-white/60">Create one to access EVynk services</p>
+                </div>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center rounded-md border border-lime-500/40 bg-transparent px-3 py-2 text-sm font-semibold text-lime-300 hover:bg-lime-500/10 transition"
+                >
+                  Register
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-auto pt-6">
+            <div className="text-[11px] text-white/50">
+              <p>Secure sign-in. By continuing, you agree to our terms.</p>
             </div>
           </div>
         </div>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import authService from '../../services/authService'; // Added import for authService
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, ArrowLeft, User } from 'lucide-react';
+import { toast } from 'react-toastify';
+import authService from '../../services/authService';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -11,33 +13,78 @@ const RegisterForm = () => {
     role: 'StationOperator'
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ 
+    email: '', 
+    password: '', 
+    confirmPassword: '' 
+  });
+  const [touched, setTouched] = useState({ 
+    email: false, 
+    password: false, 
+    confirmPassword: false 
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  const validate = (name, value) => {
+    if (name === 'email') {
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      return isValid ? '' : 'Enter a valid email address';
+    }
+    if (name === 'password') {
+      // At least 8 chars, one letter and one number
+      const isValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-={}|\[\]:";'<>?,./]{4,}$/.test(value);
+      return isValid ? '' : 'Minimum 8 characters with letters and numbers';
+    }
+    if (name === 'confirmPassword') {
+      return value === formData.password ? '' : 'Passwords do not match';
+    }
+    return '';
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Validate current field
+    setFieldErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
+    
+    // Re-validate confirmPassword if password changes
+    if (name === 'password' && touched.confirmPassword) {
+      setFieldErrors((prev) => ({ 
+        ...prev, 
+        confirmPassword: validate('confirmPassword', formData.confirmPassword) 
+      }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    // Final validation before submit
+    const emailError = validate('email', formData.email);
+    const passwordError = validate('password', formData.password);
+    const confirmPasswordError = validate('confirmPassword', formData.confirmPassword);
+    
+    setFieldErrors({ 
+      email: emailError, 
+      password: passwordError, 
+      confirmPassword: confirmPasswordError 
+    });
+    setTouched({ email: true, password: true, confirmPassword: true });
 
-    // Validate password length
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (emailError || passwordError || confirmPasswordError) {
+      toast.error('Invalid email address or password');
       return;
     }
 
@@ -53,7 +100,7 @@ const RegisterForm = () => {
     }
     
     if (result.success) {
-      setSuccess('Registration successful! You can now sign in.');
+      toast.success('Registration successful! You can now sign in.');
       // Clear form
       setFormData({
         email: '',
@@ -61,118 +108,195 @@ const RegisterForm = () => {
         confirmPassword: '',
         role: 'StationOperator'
       });
+      setTouched({ email: false, password: false, confirmPassword: false });
+      setFieldErrors({ email: '', password: '', confirmPassword: '' });
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } else {
       setError(result.error);
+      toast.error(result.error || 'Registration failed', { toastId: 'register-failed' });
     }
     
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen from-blue-500 to-purple-600 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            🚗 EVynk
-          </h1>
-          <p className="text-gray-600">Create a new account</p>
+    <div className="min-h-screen bg-gradient-to-b from-teal-900 to-teal-800 flex items-stretch justify-center p-0">
+      <Link to="/" className="absolute top-4 left-4 z-50 inline-flex items-center gap-2 text-white hover:text-lime-300 transition-colors duration-200">
+        <ArrowLeft size={24} className="drop-shadow" />
+        <span className="text-sm font-medium">Back</span>
+      </Link>
+      
+      <div className="w-full grid lg:grid-cols-2">
+        {/* Left image (desktop) */}
+        <div className="hidden lg:block relative">
+          <img
+            src="./images/login.jpg"
+            alt="EV charging"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-teal-900/80 via-teal-800/30 to-transparent" />
+          <div className="absolute bottom-8 left-8 right-8 text-white">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs border border-white/20 mb-3">
+              <ShieldCheck size={14} className="text-lime-300" />
+              Join our network
+            </div>
+            <h2 className="text-3xl font-bold">Start your journey with EVynk</h2>
+            <p className="text-white/80 mt-2 max-w-lg">Register as a station operator to manage charging stations and provide seamless EV charging experiences.</p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-              Role
-            </label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-            >
-              <option value="StationOperator">Station Operator</option>
-              <option value="Backoffice">Backoffice</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              minLength="6"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-              placeholder="Enter your password (min 6 characters)"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-              placeholder="Confirm your password"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+        {/* Right form */}
+        <div className="flex items-center justify-center p-6 sm:p-10">
+          <div className="w-full max-w-md">
+            <div className="mb-6">
+              <div className="h-1 w-16 bg-lime-500 rounded"></div>
+              <h1 className="mt-4 text-2xl font-bold text-white">Create account</h1>
+              <p className="text-white/70 text-sm">Join the EVynk network today</p>
             </div>
-          )}
 
-          {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-              {success}
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 shadow-xl">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-white/60">
+                      <Mail size={18} />
+                    </div>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      className="w-full pl-10 pr-3 py-3 rounded-lg border border-white/10 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-lime-500/70 focus:border-transparent transition"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  {touched.email && fieldErrors.email && (
+                    <p className="mt-2 text-xs text-lime-300/90">{fieldErrors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="role" className="block text-sm font-medium text-white/90 mb-2">
+                    Account Type
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-white/60">
+                      <User size={18} />
+                    </div>
+                    <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      disabled
+                      className="w-full pl-10 pr-3 py-3 rounded-lg border border-white/10 bg-white/5 text-white/70 cursor-not-allowed appearance-none focus:outline-none transition"
+                    >
+                      <option value="StationOperator">Station Operator</option>
+                    </select>
+                  </div>
+                  <p className="mt-2 text-xs text-white/50">Account type is set to Station Operator</p>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-white/60">
+                      <Lock size={18} />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      className="w-full pl-10 pr-10 py-3 rounded-lg border border-white/10 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-lime-500/70 focus:border-transparent transition"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((s) => !s)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {touched.password && fieldErrors.password && (
+                    <p className="mt-2 text-xs text-lime-300/90">{fieldErrors.password}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-white/90 mb-2">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-white/60">
+                      <Lock size={18} />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      className="w-full pl-10 pr-10 py-3 rounded-lg border border-white/10 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-lime-500/70 focus:border-transparent transition"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((s) => !s)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white"
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {touched.confirmPassword && fieldErrors.confirmPassword && (
+                    <p className="mt-2 text-xs text-lime-300/90">{fieldErrors.confirmPassword}</p>
+                  )}
+                </div>
+
+                {error && (
+                  <div className="bg-red-500/10 border border-red-400/30 text-red-200 px-4 py-3 rounded-lg">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-lime-500 hover:bg-lime-400 text-teal-900 font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-lime-500/20"
+                >
+                  {loading ? 'Creating Account...' : 'Create Account'}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-white/80 text-sm">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-lime-300 hover:text-lime-200 font-medium">
+                    Sign in here
+                  </Link>
+                </p>
+              </div>
             </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Creating Account...' : 'Create Account'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Already have an account?{' '}
-            <a href="/login" className="text-blue-500 hover:text-blue-600 font-medium">
-              Sign in here
-            </a>
-          </p>
+          </div>
         </div>
       </div>
     </div>

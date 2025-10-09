@@ -382,10 +382,13 @@ async completeBooking(id) {
   // Register user (only for backoffice users)
   async register(email, password, role) {
     try {
+      // Convert role string to numeric enum value
+      const roleValue = role === 'Backoffice' ? 1 : 2; // 1=Backoffice, 2=StationOperator
+      
       const response = await api.post('/auth/register', { 
         email, 
         password, 
-        role 
+        role: roleValue 
       });
       return { success: true, data: response.data };
     } catch (error) {
@@ -433,7 +436,10 @@ async completeBooking(id) {
   // Admin: create user with role (requires Backoffice token)
   async createUserWithRole(email, password, role) {
     try {
-      const response = await api.post('/auth/register', { email, password, role });
+      // Convert role string to numeric enum value
+      const roleValue = role === 'Backoffice' ? 1 : 2; // 1=Backoffice, 2=StationOperator
+      
+      const response = await api.post('/auth/register', { email, password, role: roleValue });
       return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: error.response?.data?.message || 'Failed to create user' };
