@@ -9,9 +9,7 @@ const RoleManagement = () => {
     const currentRole = user?.role; // 'Backoffice' or 'StationOperator'
     const isBackoffice = currentRole === 'Backoffice';
 
-    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [operators, setOperators] = useState([]);
@@ -46,7 +44,7 @@ const RoleManagement = () => {
       if (isBackoffice) {
         // Admin can create either Backoffice (1) or StationOperator (2)
         const roleName = Number(selectedRoleNum) === 1 ? 'Backoffice' : 'StationOperator';
-        res = await authService.register(name, email, phoneNumber, password, roleName);
+        res = await authService.register(email, password, roleName);
       } else {
         // Station Operator self-creates operators via open endpoint
         res = await authService.registerOperator(email, password);
@@ -55,9 +53,7 @@ const RoleManagement = () => {
       if (res.success) {
         toast.success('User created successfully!', { toastId: 'user-created' });
         setMessage('');
-        setName('');
         setEmail('');
-        setPhoneNumber('');
         setPassword('');
         if (isBackoffice) loadOperators();
       } else {
@@ -85,21 +81,7 @@ const RoleManagement = () => {
           
           <div className="p-6">
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <input 
-                    value={name} 
-                    onChange={e => setName(e.target.value)} 
-                    type="text" 
-                    placeholder="John Doe" 
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200" 
-                    required 
-                  />
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Email Address
@@ -113,23 +95,7 @@ const RoleManagement = () => {
                     required 
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <input 
-                    value={phoneNumber} 
-                    onChange={e => setPhoneNumber(e.target.value)} 
-                    type="tel" 
-                    placeholder="+1234567890" 
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200" 
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Temporary Password

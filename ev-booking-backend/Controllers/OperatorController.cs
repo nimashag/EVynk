@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using EVynk.Booking.Api.Services; 
+using EVynk.Booking.Api.Services;
 
 // ==============================================
 //  Project: EVynk Booking Backend (API)
@@ -41,7 +41,20 @@ namespace EVynk.Booking.Api.Controllers
                 return Unauthorized();
 
             var stations = await _chargingStationService.GetStationsByOperatorIdAsync(operatorId);
-            return Ok(stations);
+
+            // Return full station data with all properties for map display
+            return Ok(stations.Select(s => new
+            {
+                s.Id,
+                s.Location,
+                s.Address,
+                s.Lat,
+                s.Lng,
+                s.Type,
+                s.AvailableSlots,
+                s.IsActive,
+                s.OperatorIds
+            }).ToList());
         }
 
         [HttpGet("bookings")]
@@ -63,6 +76,6 @@ namespace EVynk.Booking.Api.Controllers
                 bookings
             });
         }
-        
+
     }
 }

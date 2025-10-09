@@ -51,6 +51,10 @@ builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<ChargingStationService>();
 builder.Services.AddScoped<OperatorReservationService>();
 
+// Email service configuration
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(EmailSettings.SectionName));
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // JWT Authentication
 var jwtSecret = builder.Configuration[$"{JwtSettings.SectionName}:Secret"];
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret ?? "development-secret-change-me"));

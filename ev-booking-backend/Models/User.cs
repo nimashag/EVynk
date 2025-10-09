@@ -24,8 +24,14 @@ namespace EVynk.Booking.Api.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = string.Empty;
 
+        [BsonElement("name")]
+        public string Name { get; set; } = string.Empty;
+
         [BsonElement("email")]
         public string Email { get; set; } = string.Empty;
+
+        [BsonElement("phoneNumber")]
+        public string PhoneNumber { get; set; } = string.Empty;
 
         [BsonElement("passwordHash")]
         public string PasswordHash { get; set; } = string.Empty;

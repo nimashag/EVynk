@@ -456,15 +456,13 @@ export const authService = {
   },
 
   // Register user (only for backoffice users)
-  async register(name, email, phoneNumber, password, role) {
+  async register(email, password, role) {
     try {
       // Convert role string to numeric enum value
       const roleValue = role === "Backoffice" ? 1 : 2; // 1=Backoffice, 2=StationOperator
 
       const response = await api.post("/auth/register", {
-        name,
         email,
-        phoneNumber,
         password,
         role: roleValue,
       });

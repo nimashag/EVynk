@@ -38,14 +38,21 @@ namespace EVynk.Booking.Api.Services
             _jwtSettings = jwtOptions.Value;
         }
 
-        public async Task<User> RegisterAsync(string email, string password, UserRole role)
+        public async Task<User> RegisterAsync(string email, string password, UserRole role, string name = "", string phoneNumber = "")
         {
             // Inline comment at the beginning of method: check existence, hash password, create user
             var existing = await _userRepository.FindByEmailAsync(email);
             if (existing != null) throw new InvalidOperationException("User already exists");
 
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-            var user = new User { Email = email, PasswordHash = passwordHash, Role = role };
+            var user = new User 
+            { 
+                Name = name,
+                Email = email, 
+                PhoneNumber = phoneNumber,
+                PasswordHash = passwordHash, 
+                Role = role 
+            };
             return await _userRepository.CreateAsync(user);
         }
 

@@ -11,14 +11,16 @@ namespace EVynk.Booking.Api.Controllers
     {
         private readonly AuthService _authService;
         private readonly OwnerService _ownerService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(AuthService authService, OwnerService ownerService)
+        public AuthController(AuthService authService, OwnerService ownerService, IEmailService emailService)
         {
             _authService = authService;
             _ownerService = ownerService;
+            _emailService = emailService;
         }
 
-        public record RegisterRequest(string Email, string Password, UserRole Role);
+        public record RegisterRequest(string Name, string Email, string PhoneNumber, string Password, UserRole Role);
         public record LoginRequest(string Email, string Password);
 
         // Backoffice-only user creation (keep as-is)
@@ -29,8 +31,22 @@ namespace EVynk.Booking.Api.Controllers
             // Inline comment at the beginning of method: delegate to service and return created user
             try
             {
-                var user = await _authService.RegisterAsync(request.Email, request.Password, request.Role);
-                return Created($"api/users/{user.Id}", new { user.Id, user.Email, user.Role });
+                var user = await _authService.RegisterAsync(request.Email, request.Password, request.Role, request.Name, request.PhoneNumber);
+                
+                // Send email with credentials if creating a Station Operator
+                if (request.Role == UserRole.StationOperator)
+                {
+                    try
+                    {
+                        await _emailService.SendOperatorCredentialsAsync(request.Email, request.Email, request.Password);
+                    }
+                    catch (Exception emailEx)
+                    {
+                        Console.WriteLine($"Failed to send email to {request.Email}: {emailEx.Message}");
+                    }
+                }
+                
+                return Created($"api/users/{user.Id}", new { user.Id, user.Name, user.Email, user.PhoneNumber, user.Role });
             }
             catch (InvalidOperationException ex)
             {
@@ -118,6 +134,22 @@ namespace EVynk.Booking.Api.Controllers
                     owner.IsActive
                 }
             });
+        }
+
+        // Test endpoint for email functionality (remove in production)
+        [HttpPost("test-email")]
+        [Authorize(Roles = nameof(UserRole.Backoffice))]
+        public async Task<IActionResult> TestEmail([FromBody] LoginRequest request)
+        {
+            try
+            {
+                await _emailService.SendOperatorCredentialsAsync(request.Email, request.Email, request.Password);
+                return Ok(new { message = "Test email sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Failed to send test email: {ex.Message}" });
+            }
         }
     }
 }

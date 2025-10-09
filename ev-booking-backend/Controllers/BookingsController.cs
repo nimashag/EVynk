@@ -14,7 +14,7 @@ namespace EVynk.Booking.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Backoffice")]
+    [Authorize(Roles = "Backoffice, StationOperator")]
     public class BookingsController : ControllerBase
     {
         private readonly BookingService _service;
@@ -68,7 +68,7 @@ namespace EVynk.Booking.Api.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving bookings", error = ex.Message });
             }
         }
-        
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreateBookingRequest request)
