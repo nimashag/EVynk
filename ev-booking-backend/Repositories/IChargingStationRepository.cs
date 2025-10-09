@@ -30,15 +30,10 @@ namespace EVynk.Booking.Api.Repositories
         // Inline comment at the beginning of method: set station active status
         Task<bool> SetActiveAsync(string id, bool isActive);
 
-<<<<<<< HEAD
 		// Inline comment at the beginning of method: hard delete station by id
 		Task<bool> DeleteAsync(string id);
 
         // In IChargingStationRepository.cs
-Task<List<ChargingStation>> GetByOperatorIdAsync(string operatorId);
-=======
-        // Inline comment at the beginning of method: hard delete station by id
-        Task<bool> DeleteAsync(string id);
->>>>>>> user-backend-try--yomith-mobile
+        Task<List<ChargingStation>> GetByOperatorIdAsync(string operatorId);
     }
 }
