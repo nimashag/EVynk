@@ -2,6 +2,37 @@
 
 A comprehensive EV charging station booking system backend API built with .NET 8, MongoDB, JWT authentication, and role-based access control. Features complete booking management, charging station administration, and EV owner management with NIC as the primary key.
 
+<img width="1051" height="1721" alt="Image" src="https://github.com/user-attachments/assets/5005131b-db0f-46b7-89b1-d0daf578f7b2" />
+
+## Demo
+<img width="669" height="1809" alt="Image" src="https://github.com/user-attachments/assets/74c38d54-e5c3-45da-b0e9-3df98cc03fec" />
+
+<img width="1432" height="737" alt="Image" src="https://github.com/user-attachments/assets/9170becb-f5fe-458f-a344-9b14f6e8eb30" />
+
+<img width="1432" height="1284" alt="Image" src="https://github.com/user-attachments/assets/5b1d56b4-ef51-4528-a469-94664ccc1e5c" />
+
+<img width="1385" height="1978" alt="Image" src="https://github.com/user-attachments/assets/922ddecc-2d4a-4a8e-accf-17c0ffd28b44" />
+
+<img width="1432" height="1736" alt="Image" src="https://github.com/user-attachments/assets/e07b3605-fb54-49a5-9c16-24bb8f370382" />
+
+<img width="1432" height="1729" alt="Image" src="https://github.com/user-attachments/assets/f8ed0a21-34ee-4755-87fa-c7c9935027a3" />
+
+<img width="1429" height="742" alt="Image" src="https://github.com/user-attachments/assets/9a0c2a16-9f1a-45b7-bfa3-aceeeff69336" />
+
+<img width="1432" height="1168" alt="Image" src="https://github.com/user-attachments/assets/eda69cfd-f35b-4773-8b3c-a87808d0c560" />
+
+<img width="1429" height="739" alt="Image" src="https://github.com/user-attachments/assets/264b8931-2868-4cfe-ae44-89ffb291c70d" />
+
+<img width="707" height="657" alt="Image" src="https://github.com/user-attachments/assets/bdca89c9-4bbb-42a6-8de7-a354ef3618e5" />
+
+<img width="1127" height="656" alt="Image" src="https://github.com/user-attachments/assets/4c7247b9-ea08-4514-aca3-6f28fcc10c18" />
+
+<img width="962" height="662" alt="Image" src="https://github.com/user-attachments/assets/5c9ac557-6b97-4b46-acb0-f408d343668f" />
+
+<img width="980" height="650" alt="Image" src="https://github.com/user-attachments/assets/3fadb3cd-8392-4db3-8b50-ccef85c7ce3b" />
+
+<img width="577" height="782" alt="Image" src="https://github.com/user-attachments/assets/4a70d541-0a04-45b7-8bf7-108f947d038c" />
+
 ## Prerequisites
 - .NET 8 SDK
 - MongoDB (local or Atlas)
